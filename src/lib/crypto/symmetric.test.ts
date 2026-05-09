@@ -96,4 +96,41 @@ describe("symmetric (XChaCha20-Poly1305)", () => {
       decryptBytes(tooShort, new Uint8Array(NONCE_BYTES + AUTH_TAG_BYTES + 1)),
     ).rejects.toThrow();
   });
+
+  // Mirrors the AAD pattern used by the envelope modes (drop/capsule/switch):
+  // the envelope version + mode + drand context is bound via AAD so a forged
+  // envelope claiming a different version, mode, or drand chain cannot be
+  // silently substituted at decrypt time.
+  describe("envelope-style AAD binding", () => {
+    it("round-trips when AAD matches; rejects when AAD differs", async () => {
+      const key = await generateSymmetricKey();
+      const aadA = utf8Encode("hermetic:capsule:v=1:round=42:chain=AAA");
+      const aadB = utf8Encode("hermetic:capsule:v=1:round=42:chain=BBB");
+      const sealed = await encryptBytes(key, utf8Encode("inside"), aadA);
+
+      const opened = await decryptBytes(key, sealed, aadA);
+      expect(utf8Decode(opened)).toBe("inside");
+
+      await expect(decryptBytes(key, sealed, aadB)).rejects.toThrow();
+    });
+
+    it("rejects cross-mode confusion (drop AAD vs switch AAD)", async () => {
+      const key = await generateSymmetricKey();
+      const dropAad = utf8Encode("hermetic:drop:v=1");
+      const switchAad = utf8Encode("hermetic:switch:v=1");
+      const sealed = await encryptBytes(key, utf8Encode("payload"), dropAad);
+
+      // Same key, same ciphertext bytes, different mode label → must fail.
+      await expect(decryptBytes(key, sealed, switchAad)).rejects.toThrow();
+    });
+
+    it("rejects envelope version downgrade (v=2 → v=1)", async () => {
+      const key = await generateSymmetricKey();
+      const v2 = utf8Encode("hermetic:drop:v=2");
+      const v1 = utf8Encode("hermetic:drop:v=1");
+      const sealed = await encryptBytes(key, utf8Encode("payload"), v2);
+
+      await expect(decryptBytes(key, sealed, v1)).rejects.toThrow();
+    });
+  });
 });

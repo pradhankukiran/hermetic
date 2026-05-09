@@ -31,6 +31,15 @@ type SwitchEnvelope = {
   size: number;
 };
 
+/**
+ * AAD bound to every Switch ciphertext. Authenticates the envelope version
+ * so a forged envelope claiming a different version (or another mode) fails
+ * to decrypt.
+ */
+function switchAad(): Uint8Array {
+  return utf8Encode(`hermetic:switch:v=${ENVELOPE_VERSION}`);
+}
+
 export type CreateSwitchInput = {
   file: File;
   thresholdK: number;
@@ -56,7 +65,8 @@ export async function buildSwitch(
 
   const plaintext = new Uint8Array(await input.file.arrayBuffer());
   const key = await generateSymmetricKey();
-  const ciphertext = await encryptBytes(key, plaintext);
+  const aad = switchAad();
+  const ciphertext = await encryptBytes(key, plaintext, aad);
 
   const envelope: SwitchEnvelope = {
     v: ENVELOPE_VERSION,
@@ -124,7 +134,8 @@ export async function unlockSwitchClientSide(opts: {
     throw new Error(`unsupported envelope version ${envelope.v}`);
   }
   const ciphertext = base64UrlToBytes(envelope.ciphertext);
-  const plaintext = await decryptBytes(key, ciphertext);
+  const aad = switchAad();
+  const plaintext = await decryptBytes(key, ciphertext, aad);
   return {
     filename: envelope.filename,
     mimeType: envelope.mimeType,
