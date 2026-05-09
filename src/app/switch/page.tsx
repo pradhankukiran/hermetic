@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { KeyRound } from "lucide-react";
 
-import { PageHeader } from "@/components/layout/page-header";
+import { ModeHero } from "@/components/layout/mode-hero";
 import { CreateSwitchForm } from "@/components/modes/switch/create-switch-form";
 import { buttonVariants } from "@/components/ui/button";
 import { getSessionUser } from "@/lib/auth/session";
@@ -10,14 +10,14 @@ export default async function SwitchPage() {
   const user = await getSessionUser();
 
   return (
-    <>
-      <PageHeader
+    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-12 lg:py-24">
+      <ModeHero
         icon={KeyRound}
-        eyebrow="Switch · sealed by trust"
-        title="A dead-man's switch you control."
+        title="Switch"
+        tagline="Sealed by trust"
         description="Encrypt your content and split the key across your trustees with Shamir's Secret Sharing. Hermetic checks in with you on a schedule — if you go silent, your trustees can combine their shares to unlock your message."
       />
-      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+      <section className="flex flex-col">
         {user ? (
           <CreateSwitchForm />
         ) : (
@@ -36,7 +36,7 @@ export default async function SwitchPage() {
             </Link>
           </div>
         )}
-      </div>
-    </>
+      </section>
+    </div>
   );
 }

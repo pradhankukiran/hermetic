@@ -1,20 +1,20 @@
 import { Hourglass } from "lucide-react";
 
-import { PageHeader } from "@/components/layout/page-header";
+import { ModeHero } from "@/components/layout/mode-hero";
 import { CreateCapsuleForm } from "@/components/modes/capsule/create-capsule-form";
 
 export default function CapsulePage() {
   return (
-    <>
-      <PageHeader
+    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-12 lg:py-24">
+      <ModeHero
         icon={Hourglass}
-        eyebrow="Capsule · sealed by time"
-        title="Encrypt for the future."
+        title="Capsule"
+        tagline="Sealed by time"
         description="Pick a future date. Hermetic encrypts your content using drand timelock so it cannot be decrypted — by anyone — until that date arrives. No central authority holds the key."
       />
-      <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+      <section className="flex flex-col">
         <CreateCapsuleForm />
-      </div>
-    </>
+      </section>
+    </div>
   );
 }
