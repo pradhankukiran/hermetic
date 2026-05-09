@@ -2,6 +2,7 @@ import "server-only";
 
 import type { NextRequest } from "next/server";
 
+import { assertSameOrigin } from "@/lib/auth/csrf";
 import { hashEmail } from "@/lib/crypto";
 import { getDb, schema } from "@/lib/db/client";
 import { appUrl, sendSwitchShare } from "@/lib/email/resend";
@@ -20,6 +21,9 @@ type CreateSwitchBody = {
 };
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   let user;
   try {
     user = await requireSessionUser();
@@ -126,9 +130,8 @@ export async function POST(req: NextRequest) {
     console.error(`[switches] ${failures} trustee email(s) failed`);
   }
 
-  return Response.json({
-    id: switchId,
-    emailsSent: sendResults.length - failures,
-    emailsFailed: failures,
-  });
+  // Do not echo per-trustee email send status — it would let a caller
+  // enumerate which trustee addresses Resend accepts. Internal failures
+  // are still logged above for operators.
+  return Response.json({ id: switchId });
 }
