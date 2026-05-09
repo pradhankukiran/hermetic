@@ -47,26 +47,29 @@ export async function POST(req: NextRequest) {
     userId = userRow[0].id;
   }
 
-  // Generate magic-link token.
+  // Generate magic-link token. We deliberately send the email *before*
+  // persisting the auth_token row: if Resend rejects the address, no
+  // row leaks into the database.
   const token = await randomBase64Url(32);
   const tokenHash = sha256(token);
-  await db.insert(schema.authTokens).values({
-    tokenHash,
-    userId,
-    kind: "magic_link",
-    expiresAt: new Date(Date.now() + TOKEN_TTL_MS),
-  });
-
+  const expiresAt = new Date(Date.now() + TOKEN_TTL_MS);
   const url = `${appUrl()}/auth/verify?token=${encodeURIComponent(token)}`;
+
   try {
     await sendMagicLink(email, url);
   } catch (err) {
     console.error("[auth/signin] email send failed", err);
-    return Response.json(
-      { error: "failed to send magic link" },
-      { status: 500 },
-    );
+    // Same generic ok response — never tell the caller whether a user
+    // exists or whether sending failed.
+    return Response.json({ ok: true });
   }
+
+  await db.insert(schema.authTokens).values({
+    tokenHash,
+    userId,
+    kind: "magic_link",
+    expiresAt,
+  });
 
   // Don't tell the caller whether the email existed before — same response either way.
   return Response.json({ ok: true });
