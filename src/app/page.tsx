@@ -93,21 +93,21 @@ export default function LandingPage() {
             const Icon = mode.icon;
             return (
               <Link key={mode.href} href={mode.href} className="group">
-                <Card size="sm" className="hover:border-foreground/30 transition-colors">
+                <Card className="hover:border-foreground/30 transition-colors">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <div className="bg-muted flex size-8 items-center justify-center rounded-md">
-                        <Icon className="size-4" strokeWidth={1.75} />
+                      <div className="bg-muted flex size-10 items-center justify-center rounded-lg">
+                        <Icon className="size-5" strokeWidth={1.75} />
                       </div>
-                      <ArrowRight className="text-muted-foreground size-3.5 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5" />
                     </div>
-                    <CardTitle className="mt-2 text-base">{mode.title}</CardTitle>
-                    <CardDescription className="text-[10px] tracking-wide uppercase">
+                    <CardTitle className="mt-2 text-lg">{mode.title}</CardTitle>
+                    <CardDescription className="text-xs tracking-wide uppercase">
                       {mode.tagline}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground text-xs leading-snug">
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {mode.description}
                     </p>
                   </CardContent>
