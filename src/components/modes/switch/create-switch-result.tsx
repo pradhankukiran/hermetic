@@ -5,6 +5,7 @@ import { Check, Copy, RotateCcw, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { copyToClipboard } from "@/lib/utils/copy";
 
 export function CreateSwitchResult({
   switchUrl,
@@ -26,12 +27,12 @@ export function CreateSwitchResult({
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    try {
-      await navigator.clipboard.writeText(switchUrl);
+    const ok = await copyToClipboard(switchUrl);
+    if (ok) {
       setCopied(true);
       toast.success("Switch URL copied");
       setTimeout(() => setCopied(false), 1800);
-    } catch {
+    } else {
       toast.error("Couldn't copy — select and copy manually");
     }
   }
