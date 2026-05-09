@@ -130,9 +130,8 @@ export async function POST(req: NextRequest) {
     console.error(`[switches] ${failures} trustee email(s) failed`);
   }
 
-  return Response.json({
-    id: switchId,
-    emailsSent: sendResults.length - failures,
-    emailsFailed: failures,
-  });
+  // Do not echo per-trustee email send status — it would let a caller
+  // enumerate which trustee addresses Resend accepts. Internal failures
+  // are still logged above for operators.
+  return Response.json({ id: switchId });
 }
