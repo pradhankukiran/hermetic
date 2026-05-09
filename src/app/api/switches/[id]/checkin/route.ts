@@ -1,13 +1,18 @@
 import "server-only";
 
+import type { NextRequest } from "next/server";
 import { and, eq } from "drizzle-orm";
 
+import { assertSameOrigin } from "@/lib/auth/csrf";
 import { getDb, schema } from "@/lib/db/client";
 import { requireSessionUser } from "@/lib/auth/session";
 
 type Context = { params: Promise<{ id: string }> };
 
-export async function POST(_req: Request, ctx: Context) {
+export async function POST(req: NextRequest, ctx: Context) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   let user;
   try {
     user = await requireSessionUser();

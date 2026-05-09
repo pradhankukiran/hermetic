@@ -2,6 +2,7 @@ import "server-only";
 
 import type { NextRequest } from "next/server";
 
+import { assertSameOrigin } from "@/lib/auth/csrf";
 import { hashEmail, randomBase64Url, sha256 } from "@/lib/crypto";
 import { getDb, schema } from "@/lib/db/client";
 import { appUrl, sendMagicLink } from "@/lib/email/resend";
@@ -11,6 +12,9 @@ const TOKEN_TTL_MS = 15 * 60 * 1000;
 const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
+  const csrf = assertSameOrigin(req);
+  if (csrf) return csrf;
+
   let body: { email?: unknown } = {};
   try {
     body = await req.json();
