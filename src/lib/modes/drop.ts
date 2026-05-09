@@ -4,6 +4,7 @@ import {
   decryptBytes,
   encryptBytes,
   generateSymmetricKey,
+  getSodium,
   utf8Encode,
 } from "@/lib/crypto";
 import { requestUploadUrl, uploadEncryptedBlob } from "@/lib/ipfs/upload";
@@ -58,6 +59,15 @@ function bytesToEnvelope(bytes: Uint8Array): DropEnvelope {
 }
 
 /**
+ * AAD bound to every Drop ciphertext. Authenticates the envelope version so
+ * downgrade or cross-mode confusion attacks fail at decrypt time rather than
+ * silently producing garbage. AAD is authenticated but not encrypted.
+ */
+function dropAad(): Uint8Array {
+  return utf8Encode(`hermetic:drop:v=${ENVELOPE_VERSION}`);
+}
+
+/**
  * Encrypt + upload a file. Returns the CID and the URL-safe key for the
  * share URL fragment.
  */
@@ -74,14 +84,22 @@ export async function createDrop(
   };
 
   const key = await generateSymmetricKey();
-  const ciphertext = await encryptBytes(key, envelopeToBytes(envelope));
+  const aad = dropAad();
+  const ciphertext = await encryptBytes(key, envelopeToBytes(envelope), aad);
+
+  // Snapshot the key into base64url so we can wipe the raw bytes from
+  // memory before going to the network. The base64url string is what
+  // gets returned for the URL fragment.
+  const keyBase64Url = bytesToBase64Url(key);
+  const sodium = await getSodium();
+  sodium.memzero(key);
 
   const { url } = await requestUploadUrl({ size: ciphertext.length });
   const { cid, size } = await uploadEncryptedBlob(ciphertext, url);
 
   return {
     cid,
-    key: bytesToBase64Url(key),
+    key: keyBase64Url,
     size,
   };
 }
@@ -111,7 +129,8 @@ export async function openDrop(
     throw new Error(`openDrop: gateway returned ${res.status}`);
   }
   const ciphertext = new Uint8Array(await res.arrayBuffer());
-  const plaintext = await decryptBytes(key, ciphertext);
+  const aad = dropAad();
+  const plaintext = await decryptBytes(key, ciphertext, aad);
   const envelope = bytesToEnvelope(plaintext);
   return {
     filename: envelope.filename,

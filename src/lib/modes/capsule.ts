@@ -4,6 +4,7 @@ import {
   decryptBytes,
   encryptBytes,
   generateSymmetricKey,
+  getSodium,
   utf8Decode,
   utf8Encode,
 } from "@/lib/crypto";
@@ -74,6 +75,18 @@ function parseEnvelope(bytes: Uint8Array): CapsuleEnvelope {
 }
 
 /**
+ * AAD bound to every Capsule ciphertext. Authenticates envelope version,
+ * drand round, and drand chain hash. A forged envelope claiming a different
+ * round or chain (e.g. one whose signatures the attacker controls) cannot
+ * be silently substituted — the AEAD tag check fails on decrypt.
+ */
+function capsuleAad(round: number, chainHash: string): Uint8Array {
+  return utf8Encode(
+    `hermetic:capsule:v=${ENVELOPE_VERSION}:round=${round}:chain=${chainHash}`,
+  );
+}
+
+/**
  * Encrypt a file for a future date and upload to IPFS. Resolves with
  * the CID + drand round metadata, which should be persisted server-side
  * for indexing (the DB stores no key material).
@@ -90,8 +103,15 @@ export async function createCapsule(
 
   const plaintext = new Uint8Array(await file.arrayBuffer());
   const key = await generateSymmetricKey();
-  const ciphertext = await encryptBytes(key, plaintext);
+  const aad = capsuleAad(round, DRAND_CHAIN_HASH);
+  const ciphertext = await encryptBytes(key, plaintext, aad);
   const tlockedKey = await timelockEncryptBytes(key, round);
+
+  // The raw symmetric key is no longer needed: the bulk content has been
+  // sealed and the key has been re-sealed under tlock. Wipe it from
+  // memory before any further awaits / network I/O.
+  const sodium = await getSodium();
+  sodium.memzero(key);
 
   const envelope: CapsuleEnvelope = {
     v: ENVELOPE_VERSION,
@@ -136,9 +156,20 @@ export async function openCapsule(cid: string): Promise<OpenedCapsule> {
   const envelopeData = new Uint8Array(await res.arrayBuffer());
   const envelope = parseEnvelope(envelopeData);
 
+  // Reject envelopes from a different drand chain BEFORE attempting decrypt.
+  // This catches forged or substituted envelopes whose tlock the attacker
+  // could otherwise have computed against a chain they control. Belt-and-
+  // braces: the AAD below also binds the chain hash to the AEAD tag.
+  if (envelope.drandChainHash !== DRAND_CHAIN_HASH) {
+    throw new Error(
+      `capsule chain hash mismatch: expected ${DRAND_CHAIN_HASH}, got ${envelope.drandChainHash}`,
+    );
+  }
+
   const key = await timelockDecryptString(envelope.tlockedKey);
   const ciphertext = base64UrlToBytes(envelope.ciphertext);
-  const plaintext = await decryptBytes(key, ciphertext);
+  const aad = capsuleAad(envelope.drandRound, envelope.drandChainHash);
+  const plaintext = await decryptBytes(key, ciphertext, aad);
 
   return {
     filename: envelope.filename,

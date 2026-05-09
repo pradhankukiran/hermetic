@@ -4,6 +4,7 @@ import {
   decryptBytes,
   encryptBytes,
   generateSymmetricKey,
+  getSodium,
   utf8Decode,
   utf8Encode,
 } from "@/lib/crypto";
@@ -31,6 +32,15 @@ type SwitchEnvelope = {
   size: number;
 };
 
+/**
+ * AAD bound to every Switch ciphertext. Authenticates the envelope version
+ * so a forged envelope claiming a different version (or another mode) fails
+ * to decrypt.
+ */
+function switchAad(): Uint8Array {
+  return utf8Encode(`hermetic:switch:v=${ENVELOPE_VERSION}`);
+}
+
 export type CreateSwitchInput = {
   file: File;
   thresholdK: number;
@@ -56,7 +66,8 @@ export async function buildSwitch(
 
   const plaintext = new Uint8Array(await input.file.arrayBuffer());
   const key = await generateSymmetricKey();
-  const ciphertext = await encryptBytes(key, plaintext);
+  const aad = switchAad();
+  const ciphertext = await encryptBytes(key, plaintext, aad);
 
   const envelope: SwitchEnvelope = {
     v: ENVELOPE_VERSION,
@@ -78,6 +89,14 @@ export async function buildSwitch(
     email: t.email,
     shareBase64Url: bytesToBase64Url(shares[i]),
   }));
+
+  // Wipe the master key and the raw share bytes once they have been
+  // base64url-encoded for transport. The ciphertext is still recoverable
+  // (it's on IPFS) but the plaintext key material no longer lingers in
+  // browser memory after this call returns.
+  const sodium = await getSodium();
+  sodium.memzero(key);
+  for (const share of shares) sodium.memzero(share);
 
   return {
     cid,
@@ -124,7 +143,15 @@ export async function unlockSwitchClientSide(opts: {
     throw new Error(`unsupported envelope version ${envelope.v}`);
   }
   const ciphertext = base64UrlToBytes(envelope.ciphertext);
-  const plaintext = await decryptBytes(key, ciphertext);
+  const aad = switchAad();
+  const plaintext = await decryptBytes(key, ciphertext, aad);
+
+  // Wipe the reconstructed master key and the input share bytes now that
+  // we have the plaintext. The plaintext itself is left to the caller.
+  const sodium = await getSodium();
+  sodium.memzero(key);
+  for (const share of shares) sodium.memzero(share);
+
   return {
     filename: envelope.filename,
     mimeType: envelope.mimeType,
