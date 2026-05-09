@@ -40,14 +40,15 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Zero radius across the board — neo-brutalism. */
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-2xl: 0;
-  --radius-3xl: 0;
-  --radius-4xl: 0;
+  /* Zero radius across the board — neo-brutalism.
+     Use 0px (with unit) so any `min(var(--radius-X), Npx)` resolves cleanly. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 
   /* Hard offset shadows for the brutalist look. */
   --shadow-brutal: 4px 4px 0 0 var(--color-foreground);
@@ -80,7 +81,7 @@
   --chart-3: oklch(0.5 0 0);
   --chart-4: oklch(0.7 0 0);
   --chart-5: oklch(0.85 0 0);
-  --radius: 0;
+  --radius: 0px;
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0 0 0);
   --sidebar-primary: oklch(0 0 0);
