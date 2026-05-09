@@ -69,7 +69,11 @@ export async function uploadEncryptedBlob(
   filename = "blob.bin",
 ): Promise<UploadResult> {
   const pinata = getBrowserPinata();
-  const file = new File([ciphertext], filename, {
+  // Copy into a fresh ArrayBuffer so the resulting Uint8Array's buffer type
+  // satisfies BlobPart (ArrayBufferView<ArrayBuffer>, not ArrayBufferLike).
+  const buffer = new ArrayBuffer(ciphertext.byteLength);
+  new Uint8Array(buffer).set(ciphertext);
+  const file = new File([buffer], filename, {
     type: "application/octet-stream",
   });
   const result = await pinata.upload.public.file(file).url(signedUrl);
