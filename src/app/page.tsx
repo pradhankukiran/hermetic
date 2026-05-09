@@ -59,7 +59,7 @@ export default function LandingPage() {
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <Link
             href="/drop"
-            className="bg-foreground text-background inline-flex h-12 items-center gap-2 border-2 border-foreground px-6 text-sm font-bold uppercase tracking-wide shadow-brutal transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+            className="bg-foreground text-background inline-flex h-12 items-center gap-2 px-6 text-sm font-bold uppercase tracking-wide shadow-brutal transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
           >
             Seal something <ArrowRight className="size-4" />
           </Link>

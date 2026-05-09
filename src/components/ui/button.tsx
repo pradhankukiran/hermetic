@@ -4,21 +4,20 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center border-2 border-foreground bg-clip-padding text-sm font-bold uppercase tracking-wide whitespace-nowrap transition-all outline-none select-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center bg-clip-padding text-sm font-bold uppercase tracking-wide whitespace-nowrap transition-all outline-none select-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
           "bg-foreground text-background hover:translate-x-0.5 hover:translate-y-0.5",
         outline:
-          "bg-background text-foreground hover:bg-muted",
+          "border-2 border-foreground bg-background text-foreground hover:bg-muted",
         secondary:
-          "bg-muted text-foreground hover:bg-foreground hover:text-background",
-        ghost:
-          "border-transparent hover:bg-muted",
+          "border-2 border-foreground bg-muted text-foreground hover:bg-foreground hover:text-background",
+        ghost: "hover:bg-muted",
         destructive:
           "bg-foreground text-background hover:translate-x-0.5 hover:translate-y-0.5",
-        link: "border-transparent text-foreground underline underline-offset-4",
+        link: "text-foreground underline underline-offset-4",
       },
       size: {
         default:
