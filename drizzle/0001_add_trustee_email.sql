@@ -1,0 +1,1 @@
+ALTER TABLE "switch_trustees" ADD COLUMN "email" text NOT NULL;

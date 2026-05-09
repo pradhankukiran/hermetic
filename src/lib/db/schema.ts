@@ -144,9 +144,14 @@ export const switches = pgTable("switches", {
 });
 
 // ---------------------------------------------------------------------------
-// switch_trustees — one row per trustee on a switch. Email is hashed.
-// share_index lets us re-notify a specific trustee about which share they hold,
-// but we never store the share itself.
+// switch_trustees — one row per trustee on a switch.
+//
+// Email is stored both as plaintext (for re-notification when the switch
+// fires) AND as a SHA-256 hash (for owner-side lookup without exposing the
+// plaintext to indexes). The share itself is NEVER stored — it is emailed
+// to the trustee at creation time and lives only in their inbox/password
+// manager. This makes ZK strict: the server cannot reconstruct the key
+// from anything in this table.
 // ---------------------------------------------------------------------------
 export const switchTrustees = pgTable(
   "switch_trustees",
@@ -155,6 +160,7 @@ export const switchTrustees = pgTable(
     switchId: uuid("switch_id")
       .notNull()
       .references(() => switches.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
     emailHash: bytea("email_hash").notNull(),
     shareIndex: integer("share_index").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
