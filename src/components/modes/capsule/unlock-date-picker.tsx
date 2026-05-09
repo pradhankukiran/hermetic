@@ -39,7 +39,6 @@ export function UnlockDatePicker({
     return now;
   }, []);
 
-  const dateString = value ? format(value, "yyyy-MM-dd") : "";
   const timeString = value ? format(value, "HH:mm") : "12:00";
 
   function setDatePart(dateStr: string) {
@@ -129,15 +128,6 @@ export function UnlockDatePicker({
           Pick a date at least 5 minutes in the future.
         </p>
       ) : null}
-
-      <input
-        type="text"
-        value={dateString}
-        onChange={(e) => setDatePart(e.target.value)}
-        className="sr-only"
-        aria-hidden
-        tabIndex={-1}
-      />
     </div>
   );
 }

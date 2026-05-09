@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { utf8Decode } from "@/lib/crypto";
 import { unlockSwitchClientSide } from "@/lib/modes/switch";
+import { formatBytes } from "@/lib/utils/format";
 
 type Decoded = { filename: string; mimeType: string; bytes: Uint8Array };
 
@@ -22,12 +23,6 @@ type Phase =
   | { kind: "decrypting" }
   | { kind: "ready"; decoded: Decoded }
   | { kind: "error"; message: string };
-
-function formatBytes(n: number) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
-}
 
 export function SwitchUnlockPanel({
   cid,

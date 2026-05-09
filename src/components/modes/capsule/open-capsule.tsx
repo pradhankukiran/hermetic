@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { utf8Decode } from "@/lib/crypto";
 import { fetchCapsuleHeader, openCapsule, type OpenedCapsule } from "@/lib/modes/capsule";
+import { formatBytes } from "@/lib/utils/format";
 
 type Header = {
   filename: string;
@@ -29,20 +30,19 @@ type Phase =
   | { kind: "ready"; header: Header; capsule: OpenedCapsule }
   | { kind: "error"; message: string };
 
-function formatBytes(n: number) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
-}
-
 function useCountdown(target: Date) {
   const [now, setNow] = useState<number>(() => Date.now());
+  const targetMs = target.getTime();
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    if (targetMs <= Date.now()) return;
+    const id = setInterval(() => {
+      const current = Date.now();
+      setNow(current);
+      if (targetMs <= current) clearInterval(id);
+    }, 1000);
     return () => clearInterval(id);
-  }, []);
-  const ms = target.getTime() - now;
-  return ms;
+  }, [targetMs]);
+  return targetMs - now;
 }
 
 export function OpenCapsule({ cid }: { cid: string }) {
@@ -76,25 +76,39 @@ export function OpenCapsule({ cid }: { cid: string }) {
   // Once unlockAt has passed (and we are in 'waiting'), bump to 'unlocking'.
   // Always go through setTimeout — even with ms<=0, setTimeout dispatches
   // asynchronously so we avoid a synchronous setState-in-effect cascade.
+  // Depend on a stable scalar (the unlock instant) rather than the whole phase
+  // object so the timer isn't recreated on unrelated phase transitions.
+  const waitingUntil =
+    phase.kind === "waiting" ? phase.header.unlockAt.getTime() : null;
   useEffect(() => {
-    if (phase.kind !== "waiting") return;
-    const ms = Math.max(0, phase.header.unlockAt.getTime() - Date.now());
+    if (waitingUntil == null) return;
+    const ms = Math.max(0, waitingUntil - Date.now());
     const id = setTimeout(
-      () => setPhase({ kind: "unlocking", header: phase.header }),
+      () =>
+        setPhase((p) =>
+          p.kind === "waiting" ? { kind: "unlocking", header: p.header } : p,
+        ),
       ms,
     );
     return () => clearTimeout(id);
-  }, [phase]);
+  }, [waitingUntil]);
 
-  // When in 'unlocking', actually decrypt.
+  // When in 'unlocking', actually decrypt. Depend on the drand round (a stable
+  // scalar) so we don't re-run on unrelated state changes.
+  const unlockingRound =
+    phase.kind === "unlocking" ? phase.header.drandRound : null;
   useEffect(() => {
-    if (phase.kind !== "unlocking") return;
+    if (unlockingRound == null) return;
     let cancelled = false;
     (async () => {
       try {
         const capsule = await openCapsule(cid);
         if (cancelled) return;
-        setPhase({ kind: "ready", header: phase.header, capsule });
+        setPhase((p) =>
+          p.kind === "unlocking"
+            ? { kind: "ready", header: p.header, capsule }
+            : p,
+        );
       } catch (err) {
         if (cancelled) return;
         setPhase({
@@ -109,7 +123,7 @@ export function OpenCapsule({ cid }: { cid: string }) {
     return () => {
       cancelled = true;
     };
-  }, [phase, cid]);
+  }, [unlockingRound, cid]);
 
   if (phase.kind === "loading-header") {
     return (

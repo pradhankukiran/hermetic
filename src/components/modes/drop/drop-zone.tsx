@@ -4,15 +4,9 @@ import { useCallback, useRef, useState, type DragEvent } from "react";
 import { FileUp, Upload, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { formatBytes } from "@/lib/utils/format";
 
 const MAX_BYTES = 100 * 1024 * 1024;
-
-function formatBytes(n: number) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
-  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
-}
 
 export function DropZone({
   file,
@@ -88,6 +82,13 @@ export function DropZone({
         onDragLeave={() => setHovering(false)}
         onDrop={onDrop}
         onClick={() => !disabled && inputRef.current?.click()}
+        onKeyDown={(e) => {
+          if (disabled) return;
+          if (e.key === "Enter" || e.key === " ") {
+            if (e.key === " ") e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         role="button"
         tabIndex={0}
         aria-disabled={disabled}
