@@ -34,7 +34,7 @@ export default function LandingPage() {
   return (
     <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-12 lg:py-24">
       {/* Hero */}
-      <section className="flex flex-col items-start gap-8">
+      <section className="flex flex-col items-center gap-8 text-center">
         <div className="flex items-center gap-3 sm:gap-5">
           <Hexagon
             className="size-14 sm:size-20 md:size-24"
