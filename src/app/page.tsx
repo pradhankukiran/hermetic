@@ -34,23 +34,39 @@ export default function LandingPage() {
   return (
     <div className="flex flex-1 flex-col">
       <section className="relative overflow-hidden border-b">
-        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
-          <div className="flex flex-col items-start gap-6 sm:items-center sm:text-center">
+        <div className="mx-auto w-full max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
+          <div className="flex flex-col items-start gap-8 sm:items-center sm:text-center">
+            {/* Logo + wordmark */}
+            <div className="flex items-center gap-3 sm:gap-5">
+              <Hexagon
+                className="size-14 sm:size-20 md:size-24"
+                strokeWidth={1.5}
+              />
+              <h1 className="text-6xl font-bold tracking-tight sm:text-7xl md:text-8xl">
+                Hermetic
+              </h1>
+            </div>
+
+            {/* Tagline */}
+            <p className="text-2xl font-medium tracking-tight sm:text-3xl">
+              Sealed envelopes
+              <span className="text-muted-foreground"> for the internet.</span>
+            </p>
+
+            {/* Properties chip */}
             <div className="border-border/60 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
-              <Hexagon className="size-3" strokeWidth={1.75} />
               <span className="text-muted-foreground">
                 End-to-end encrypted · Zero-knowledge · Decentralized
               </span>
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
-              Sealed envelopes
-              <span className="text-muted-foreground"> for the internet.</span>
-            </h1>
+
+            {/* Description */}
             <p className="text-muted-foreground max-w-2xl text-base sm:text-lg">
               Encrypt anything in your browser. Choose how it gets unlocked: by link,
               by date, or by your trustees. We never see the contents — and neither
               does the network.
             </p>
+
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href="/drop"
