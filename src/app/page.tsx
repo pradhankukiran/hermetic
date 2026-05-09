@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Hexagon, Hourglass, Link2, Users } from "lucide-react";
+import { ArrowRight, Hexagon, Hourglass, Send, KeyRound } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const modes = [
   {
     href: "/drop",
-    icon: Link2,
+    icon: Send,
     title: "Drop",
     tagline: "Sealed by link",
     description:
@@ -22,7 +22,7 @@ const modes = [
   },
   {
     href: "/switch",
-    icon: Users,
+    icon: KeyRound,
     title: "Switch",
     tagline: "Sealed by trust",
     description:

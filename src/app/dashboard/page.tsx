@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
-import { ArrowRight, Hexagon, Hourglass, Plus, Users } from "lucide-react";
+import { ArrowRight, Hexagon, Hourglass, Plus, KeyRound } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 
 import { PageHeader } from "@/components/layout/page-header";
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg">
-                        <Users className="size-4" strokeWidth={1.75} />
+                        <KeyRound className="size-4" strokeWidth={1.75} />
                       </div>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">
@@ -125,7 +125,7 @@ function EmptyState() {
   return (
     <div className="border-border/60 bg-muted/20 flex flex-col items-start gap-3 rounded-xl border border-dashed p-8">
       <div className="bg-background flex size-10 items-center justify-center rounded-lg border">
-        <Users className="size-4" strokeWidth={1.75} />
+        <KeyRound className="size-4" strokeWidth={1.75} />
       </div>
       <p className="text-sm font-medium">No switches yet.</p>
       <p className="text-muted-foreground text-sm">
@@ -137,7 +137,7 @@ function EmptyState() {
           href="/switch"
           className={buttonVariants({ variant: "default", size: "default" }) + " gap-2"}
         >
-          <Users className="size-4" /> New Switch
+          <KeyRound className="size-4" /> New Switch
         </Link>
         <Link
           href="/capsule"

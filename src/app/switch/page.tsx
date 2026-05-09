@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users } from "lucide-react";
+import { KeyRound } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { CreateSwitchForm } from "@/components/modes/switch/create-switch-form";
@@ -12,7 +12,7 @@ export default async function SwitchPage() {
   return (
     <>
       <PageHeader
-        icon={Users}
+        icon={KeyRound}
         eyebrow="Switch · sealed by trust"
         title="A dead-man's switch you control."
         description="Encrypt your content and split the key across your trustees with Shamir's Secret Sharing. Hermetic checks in with you on a schedule — if you go silent, your trustees can combine their shares to unlock your message."

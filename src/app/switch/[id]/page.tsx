@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { ShieldAlert, Users } from "lucide-react";
+import { ShieldAlert, KeyRound } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { SwitchOwnerPanel } from "@/components/modes/switch/owner-panel";
@@ -41,7 +41,7 @@ export default async function SwitchDetailPage({ params }: { params: Params }) {
   return (
     <>
       <PageHeader
-        icon={Users}
+        icon={KeyRound}
         eyebrow={`Switch · ${id.slice(0, 8)}…${id.slice(-6)}`}
         title={
           row.status === "triggered"

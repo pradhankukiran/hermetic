@@ -1,4 +1,4 @@
-import { Link2 } from "lucide-react";
+import { Send } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { OpenDrop } from "@/components/modes/drop/open-drop";
@@ -10,7 +10,7 @@ export default async function DropReceivePage({ params }: { params: Params }) {
   return (
     <>
       <PageHeader
-        icon={Link2}
+        icon={Send}
         eyebrow={`Drop · ${cid.slice(0, 12)}…${cid.slice(-6)}`}
         title="Opening sealed drop."
         description="Fetching encrypted content from IPFS and decrypting in your browser. The decryption key in this URL fragment is never sent to a server."
