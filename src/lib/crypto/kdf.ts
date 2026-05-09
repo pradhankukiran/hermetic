@@ -11,7 +11,10 @@ import { getSodium } from "./sodium";
  *   (it is *not* secret, but it must be unique per user/passphrase)
  *
  * Strength presets (browser-friendly, all parallelism=1):
- *  - light:    t=2, m=19 MiB.   Use for already-strong inputs (recovery codes).
+ *  - light:    t=2, m=19 MiB.   **Recovery-code-only.** Below OWASP minimums
+ *                               for typical passphrases — pair with a
+ *                               high-entropy input (>=128 bits) or use
+ *                               `balanced`.
  *  - balanced: t=3, m=64 MiB.   Sane default for typical passphrases.
  *  - strong:   t=4, m=128 MiB.  Use for highest-value secrets on capable devices.
  *
