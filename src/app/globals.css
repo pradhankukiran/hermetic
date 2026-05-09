@@ -138,9 +138,14 @@
     @apply font-sans;
   }
   /* Neo-brutalism: every icon stroke ends and joins squarely.
-     Overrides Lucide's hardcoded stroke-linecap="round" / linejoin="round". */
-  svg {
-    stroke-linecap: square;
-    stroke-linejoin: miter;
+     Overrides Lucide's hardcoded stroke-linecap="round" / linejoin="round"
+     which is set as SVG presentation attributes on the <svg> root and
+     inherited by child <path>s. Use !important + descendant selector
+     because CSS @layer base can lose to presentation-attribute origin
+     in some browser cascade orderings. */
+  svg,
+  svg * {
+    stroke-linecap: square !important;
+    stroke-linejoin: miter !important;
   }
 }
