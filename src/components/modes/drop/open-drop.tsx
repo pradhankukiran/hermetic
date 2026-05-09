@@ -7,18 +7,13 @@ import { Button } from "@/components/ui/button";
 import { utf8Decode } from "@/lib/crypto";
 import { gatewayUrl } from "@/lib/ipfs/gateway";
 import { openDrop, type OpenedDrop } from "@/lib/modes/drop";
+import { formatBytes } from "@/lib/utils/format";
 
 type Phase =
   | { kind: "loading" }
   | { kind: "missing-key" }
   | { kind: "ready"; drop: OpenedDrop }
   | { kind: "error"; message: string };
-
-function formatBytes(n: number) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
-}
 
 export function OpenDrop({ cid }: { cid: string }) {
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });

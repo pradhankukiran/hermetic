@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { utf8Decode } from "@/lib/crypto";
 import { fetchCapsuleHeader, openCapsule, type OpenedCapsule } from "@/lib/modes/capsule";
+import { formatBytes } from "@/lib/utils/format";
 
 type Header = {
   filename: string;
@@ -28,12 +29,6 @@ type Phase =
   | { kind: "unlocking"; header: Header }
   | { kind: "ready"; header: Header; capsule: OpenedCapsule }
   | { kind: "error"; message: string };
-
-function formatBytes(n: number) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
-}
 
 function useCountdown(target: Date) {
   const [now, setNow] = useState<number>(() => Date.now());
