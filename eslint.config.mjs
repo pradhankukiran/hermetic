@@ -24,6 +24,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Claude Code agent scratch space (worktrees, transient files):
+    ".claude/**",
   ]),
 ]);
 
