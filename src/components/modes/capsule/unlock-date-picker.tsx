@@ -67,7 +67,7 @@ export function UnlockDatePicker({
             size="sm"
             disabled={disabled}
             onClick={() => onChange(p.value())}
-            className="rounded-full"
+            className=""
           >
             {p.label}
           </Button>
@@ -78,7 +78,7 @@ export function UnlockDatePicker({
         <Popover>
           <PopoverTrigger
             disabled={disabled}
-            className="border-input hover:bg-muted disabled:pointer-events-none disabled:opacity-50 flex h-9 flex-1 items-center justify-start gap-2 rounded-md border bg-transparent px-3 text-sm font-normal transition-colors"
+            className="border-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-50 flex h-10 flex-1 items-center justify-start gap-2 border-2 bg-background px-3 text-sm font-medium transition-colors"
           >
             <CalendarIcon className="size-4" />
             {value ? format(value, "PPP") : "Pick a date"}

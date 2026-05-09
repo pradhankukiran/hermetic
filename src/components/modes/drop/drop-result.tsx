@@ -53,7 +53,7 @@ export function DropResult({
           href={shareUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:bg-muted inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm transition-colors"
+          className="hover:bg-muted inline-flex h-9 items-center gap-2 border-2 border-foreground px-4 text-sm font-bold uppercase tracking-wide"
         >
           <ExternalLink className="size-3.5" /> Open recipient view
         </a>

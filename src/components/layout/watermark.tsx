@@ -20,7 +20,7 @@ export function Watermark() {
         {Array.from({ length: ROWS }).map((_, i) => (
           <div
             key={i}
-            className="text-5xl font-black tracking-tight whitespace-nowrap uppercase sm:text-6xl"
+            className="text-5xl font-black tracking-tighter whitespace-nowrap uppercase sm:text-6xl"
           >
             {lineText}
           </div>

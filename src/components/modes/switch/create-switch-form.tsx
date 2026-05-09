@@ -246,7 +246,7 @@ export function CreateSwitchForm() {
               size="sm"
               disabled={busy}
               onClick={() => setInactivityDays(d)}
-              className="rounded-full"
+              className=""
             >
               {d} days
             </Button>

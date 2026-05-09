@@ -23,15 +23,15 @@ export function ModeHero({
   return (
     <section className="flex flex-col items-start justify-center gap-6">
       <div className="flex items-center gap-4 sm:gap-5">
-        <div className="bg-muted flex size-14 shrink-0 items-center justify-center rounded-xl sm:size-16">
+        <div className="bg-foreground text-background flex size-14 shrink-0 items-center justify-center sm:size-16">
           <Icon className="size-7 sm:size-8" strokeWidth={2.5} />
         </div>
-        <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
+        <h1 className="text-5xl font-black tracking-tighter uppercase sm:text-6xl">
           {title}
         </h1>
       </div>
 
-      <p className="text-2xl font-medium tracking-tight sm:text-3xl">
+      <p className="text-2xl font-bold uppercase tracking-tight sm:text-3xl">
         Sealed
         <span className="text-muted-foreground"> {tagline.replace(/^Sealed /, "")}</span>
       </p>

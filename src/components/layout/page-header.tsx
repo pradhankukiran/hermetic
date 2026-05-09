@@ -16,17 +16,17 @@ export function PageHeader({
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-10 sm:px-6 sm:py-12">
         <div className="flex items-center gap-4">
           {Icon ? (
-            <div className="bg-muted flex size-14 shrink-0 items-center justify-center rounded-xl sm:size-16">
+            <div className="bg-foreground text-background flex size-14 shrink-0 items-center justify-center sm:size-16">
               <Icon className="size-7 sm:size-8" strokeWidth={2.5} />
             </div>
           ) : null}
           <div className="flex min-w-0 flex-col">
             {eyebrow ? (
-              <p className="text-muted-foreground text-base font-medium tracking-tight">
+              <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest">
                 {eyebrow}
               </p>
             ) : null}
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h1 className="text-3xl font-black tracking-tighter uppercase sm:text-4xl">
               {title}
             </h1>
           </div>

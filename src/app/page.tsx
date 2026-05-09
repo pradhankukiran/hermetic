@@ -40,7 +40,7 @@ export default function LandingPage() {
             className="size-14 sm:size-20 md:size-24"
             strokeWidth={2.25}
           />
-          <h1 className="text-6xl font-bold tracking-tight sm:text-7xl md:text-8xl">
+          <h1 className="text-6xl font-black tracking-tighter uppercase sm:text-7xl md:text-8xl">
             Hermetic
           </h1>
         </div>
@@ -59,15 +59,9 @@ export default function LandingPage() {
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <Link
             href="/drop"
-            className="bg-foreground text-background inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-medium transition-opacity hover:opacity-90"
+            className="bg-foreground text-background inline-flex h-12 items-center gap-2 border-2 border-foreground px-6 text-sm font-bold uppercase tracking-wide shadow-brutal transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
           >
             Seal something <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            href="/threat-model"
-            className="hover:bg-muted inline-flex h-10 items-center rounded-full px-5 text-sm transition-colors"
-          >
-            How it works
           </Link>
         </div>
       </section>
@@ -87,16 +81,16 @@ export default function LandingPage() {
             const Icon = mode.icon;
             return (
               <Link key={mode.href} href={mode.href} className="group">
-                <Card className="hover:border-foreground/30 transition-colors">
+                <Card className="shadow-brutal transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none">
                   <CardHeader className="flex flex-row items-center gap-4">
-                    <div className="bg-muted flex size-14 shrink-0 items-center justify-center rounded-xl sm:size-16">
+                    <div className="bg-foreground text-background flex size-14 shrink-0 items-center justify-center sm:size-16">
                       <Icon className="size-7 sm:size-8" strokeWidth={2.5} />
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col">
-                      <CardTitle className="text-3xl font-bold tracking-tight sm:text-4xl">
+                      <CardTitle className="text-3xl font-black tracking-tighter uppercase sm:text-4xl">
                         {mode.title}
                       </CardTitle>
-                      <CardDescription className="text-base font-medium tracking-tight">
+                      <CardDescription className="text-base font-bold uppercase tracking-wide">
                         {mode.tagline}
                       </CardDescription>
                     </div>
