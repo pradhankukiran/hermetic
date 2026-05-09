@@ -146,12 +146,18 @@ export const switches = pgTable("switches", {
 // ---------------------------------------------------------------------------
 // switch_trustees — one row per trustee on a switch.
 //
-// Email is stored both as plaintext (for re-notification when the switch
-// fires) AND as a SHA-256 hash (for owner-side lookup without exposing the
-// plaintext to indexes). The share itself is NEVER stored — it is emailed
-// to the trustee at creation time and lives only in their inbox/password
-// manager. This makes ZK strict: the server cannot reconstruct the key
-// from anything in this table.
+// Trustee email is stored as PLAINTEXT (alongside a SHA-256 hash used only
+// for owner-side lookup). This is a deliberate trade-off versus the rest of
+// the system: the server cannot read content or reconstruct keys, but it
+// CAN see who the trustees are. We keep plaintext so the trigger-time
+// notification can actually deliver — hashing would break that flow.
+//
+// The share itself is NEVER stored — it is emailed to the trustee at
+// creation time and lives only in their inbox / password manager. So while
+// trustee identities are visible to the operator, no row in this table
+// (alone or combined) lets the server reconstruct the symmetric key.
+//
+// See `docs/threat-model.md` ("Metadata") for the full rationale.
 // ---------------------------------------------------------------------------
 export const switchTrustees = pgTable(
   "switch_trustees",
