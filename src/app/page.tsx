@@ -94,19 +94,19 @@ export default function LandingPage() {
             return (
               <Link key={mode.href} href={mode.href} className="group">
                 <Card className="hover:border-foreground/30 transition-colors">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="bg-muted flex size-10 items-center justify-center rounded-lg">
-                        <Icon className="size-5" strokeWidth={1.75} />
-                      </div>
-                      <ArrowRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5" />
+                  <CardHeader className="flex flex-row items-center gap-4">
+                    <div className="bg-muted flex size-14 shrink-0 items-center justify-center rounded-xl sm:size-16">
+                      <Icon className="size-7 sm:size-8" strokeWidth={1.5} />
                     </div>
-                    <CardTitle className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                      {mode.title}
-                    </CardTitle>
-                    <CardDescription className="text-base font-medium tracking-tight">
-                      {mode.tagline}
-                    </CardDescription>
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <CardTitle className="text-3xl font-bold tracking-tight sm:text-4xl">
+                        {mode.title}
+                      </CardTitle>
+                      <CardDescription className="text-base font-medium tracking-tight">
+                        {mode.tagline}
+                      </CardDescription>
+                    </div>
+                    <ArrowRight className="text-muted-foreground size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground text-sm leading-relaxed">
