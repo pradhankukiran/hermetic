@@ -86,6 +86,13 @@ export function DropZone({
         onDragLeave={() => setHovering(false)}
         onDrop={onDrop}
         onClick={() => !disabled && inputRef.current?.click()}
+        onKeyDown={(e) => {
+          if (disabled) return;
+          if (e.key === "Enter" || e.key === " ") {
+            if (e.key === " ") e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         role="button"
         tabIndex={0}
         aria-disabled={disabled}
