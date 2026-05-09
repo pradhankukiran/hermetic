@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { Watermark } from "@/components/layout/watermark";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -40,7 +41,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="flex flex-1 flex-col">{children}</main>
+          <Watermark />
+          <main className="relative z-10 flex flex-1 flex-col">{children}</main>
           <Toaster richColors position="bottom-right" />
         </ThemeProvider>
       </body>

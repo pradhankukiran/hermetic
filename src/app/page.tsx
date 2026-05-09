@@ -50,12 +50,6 @@ export default function LandingPage() {
           <span className="text-muted-foreground"> for the internet.</span>
         </p>
 
-        <div className="border-border/60 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
-          <span className="text-muted-foreground">
-            End-to-end encrypted · Zero-knowledge · Decentralized
-          </span>
-        </div>
-
         <p className="text-muted-foreground max-w-xl text-base sm:text-lg">
           Encrypt anything in your browser. Choose how it gets unlocked: by link,
           by date, or by your trustees. We never see the contents — and neither
