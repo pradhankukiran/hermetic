@@ -137,4 +137,10 @@
   html {
     @apply font-sans;
   }
+  /* Neo-brutalism: every icon stroke ends and joins squarely.
+     Overrides Lucide's hardcoded stroke-linecap="round" / linejoin="round". */
+  svg {
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
 }
