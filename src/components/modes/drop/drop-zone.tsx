@@ -51,14 +51,16 @@ export function DropZone({
 
   if (file) {
     return (
-      <div className="border-border bg-muted/40 flex items-center justify-between gap-4 rounded-xl border p-4">
+      <div className="border-2 border-foreground bg-background flex items-center justify-between gap-4 p-4">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="bg-background flex size-10 shrink-0 items-center justify-center rounded-lg border">
-            <FileUp className="size-4" strokeWidth={1.75} />
+          <div className="bg-foreground text-background flex size-10 shrink-0 items-center justify-center">
+            <FileUp className="size-4" strokeWidth={2.5} />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{file.name}</p>
-            <p className="text-muted-foreground text-xs">
+            <p className="truncate text-sm font-bold uppercase tracking-tight">
+              {file.name}
+            </p>
+            <p className="text-muted-foreground text-xs font-mono">
               {formatBytes(file.size)} · {file.type || "application/octet-stream"}
             </p>
           </div>
@@ -89,18 +91,30 @@ export function DropZone({
         role="button"
         tabIndex={0}
         aria-disabled={disabled}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-10 text-center transition-colors ${
+        className={`flex cursor-pointer flex-col items-center justify-center gap-4 border-[3px] border-dashed border-foreground p-10 text-center transition-colors ${
           hovering
-            ? "border-foreground bg-muted"
-            : "border-border/60 bg-background hover:bg-muted/40"
+            ? "bg-foreground text-background"
+            : "bg-background hover:bg-muted"
         } ${disabled ? "pointer-events-none opacity-60" : ""}`}
       >
-        <div className="bg-background flex size-12 items-center justify-center rounded-full border">
-          <Upload className="size-5" strokeWidth={1.75} />
+        <div
+          className={`flex size-14 items-center justify-center border-2 ${
+            hovering
+              ? "border-background bg-foreground"
+              : "border-foreground bg-foreground text-background"
+          }`}
+        >
+          <Upload className="size-6" strokeWidth={2.5} />
         </div>
-        <div>
-          <p className="text-sm font-medium">Drop a file or click to browse</p>
-          <p className="text-muted-foreground text-xs">
+        <div className="flex flex-col gap-1">
+          <p className="text-base font-bold uppercase tracking-wide">
+            Drop a file or click to browse
+          </p>
+          <p
+            className={`text-xs font-mono ${
+              hovering ? "text-background/80" : "text-muted-foreground"
+            }`}
+          >
             Up to {formatBytes(MAX_BYTES)}. Encrypted in your browser before upload.
           </p>
         </div>
@@ -114,7 +128,11 @@ export function DropZone({
           if (f && validate(f)) onFileChange(f);
         }}
       />
-      {error ? <p className="text-destructive text-xs">{error}</p> : null}
+      {error ? (
+        <p className="text-foreground text-xs font-bold uppercase tracking-wide">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
