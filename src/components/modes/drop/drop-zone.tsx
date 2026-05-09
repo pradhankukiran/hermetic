@@ -91,8 +91,8 @@ export function DropZone({
         aria-disabled={disabled}
         className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-10 text-center transition-colors ${
           hovering
-            ? "border-foreground bg-muted/40"
-            : "border-border/60 bg-muted/20 hover:bg-muted/30"
+            ? "border-foreground bg-muted"
+            : "border-border/60 bg-background hover:bg-muted/40"
         } ${disabled ? "pointer-events-none opacity-60" : ""}`}
       >
         <div className="bg-background flex size-12 items-center justify-center rounded-full border">
