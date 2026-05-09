@@ -1,5 +1,7 @@
 import "server-only";
 
+import { timingSafeEqual } from "node:crypto";
+
 import type { NextRequest } from "next/server";
 import { and, eq, lt, sql } from "drizzle-orm";
 
@@ -23,7 +25,10 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: "CRON_SECRET not set" }, { status: 500 });
   }
   const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${secret}`) {
+  const expected = `Bearer ${secret}`;
+  const a = Buffer.from(auth ?? "");
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
