@@ -98,7 +98,9 @@ across N trustees, with reconstruction requiring any K of them.
   mathematically impossible.
 - Trustees do not need keys themselves. They store opaque bytes.
 - Tiny implementation surface. The `shamir-secret-sharing` package is
-  ~200 LoC of GF(256) arithmetic with no dependencies.
+  small (~200 LoC), reviewable, no external dependencies — but pre-1.0
+  (`0.0.4`), single-maintainer, and unaudited; we vouch for the
+  implementation only by reading it ourselves.
 
 **Source:** `src/lib/crypto/shamir.ts`. Library: `shamir-secret-sharing`.
 
