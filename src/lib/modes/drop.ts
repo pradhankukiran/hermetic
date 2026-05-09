@@ -4,6 +4,7 @@ import {
   decryptBytes,
   encryptBytes,
   generateSymmetricKey,
+  getSodium,
   utf8Encode,
 } from "@/lib/crypto";
 import { requestUploadUrl, uploadEncryptedBlob } from "@/lib/ipfs/upload";
@@ -86,12 +87,19 @@ export async function createDrop(
   const aad = dropAad();
   const ciphertext = await encryptBytes(key, envelopeToBytes(envelope), aad);
 
+  // Snapshot the key into base64url so we can wipe the raw bytes from
+  // memory before going to the network. The base64url string is what
+  // gets returned for the URL fragment.
+  const keyBase64Url = bytesToBase64Url(key);
+  const sodium = await getSodium();
+  sodium.memzero(key);
+
   const { url } = await requestUploadUrl({ size: ciphertext.length });
   const { cid, size } = await uploadEncryptedBlob(ciphertext, url);
 
   return {
     cid,
-    key: bytesToBase64Url(key),
+    key: keyBase64Url,
     size,
   };
 }

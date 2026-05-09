@@ -4,6 +4,7 @@ import {
   decryptBytes,
   encryptBytes,
   generateSymmetricKey,
+  getSodium,
   utf8Decode,
   utf8Encode,
 } from "@/lib/crypto";
@@ -105,6 +106,12 @@ export async function createCapsule(
   const aad = capsuleAad(round, DRAND_CHAIN_HASH);
   const ciphertext = await encryptBytes(key, plaintext, aad);
   const tlockedKey = await timelockEncryptBytes(key, round);
+
+  // The raw symmetric key is no longer needed: the bulk content has been
+  // sealed and the key has been re-sealed under tlock. Wipe it from
+  // memory before any further awaits / network I/O.
+  const sodium = await getSodium();
+  sodium.memzero(key);
 
   const envelope: CapsuleEnvelope = {
     v: ENVELOPE_VERSION,

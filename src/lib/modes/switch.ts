@@ -4,6 +4,7 @@ import {
   decryptBytes,
   encryptBytes,
   generateSymmetricKey,
+  getSodium,
   utf8Decode,
   utf8Encode,
 } from "@/lib/crypto";
@@ -89,6 +90,14 @@ export async function buildSwitch(
     shareBase64Url: bytesToBase64Url(shares[i]),
   }));
 
+  // Wipe the master key and the raw share bytes once they have been
+  // base64url-encoded for transport. The ciphertext is still recoverable
+  // (it's on IPFS) but the plaintext key material no longer lingers in
+  // browser memory after this call returns.
+  const sodium = await getSodium();
+  sodium.memzero(key);
+  for (const share of shares) sodium.memzero(share);
+
   return {
     cid,
     thresholdK: input.thresholdK,
@@ -136,6 +145,13 @@ export async function unlockSwitchClientSide(opts: {
   const ciphertext = base64UrlToBytes(envelope.ciphertext);
   const aad = switchAad();
   const plaintext = await decryptBytes(key, ciphertext, aad);
+
+  // Wipe the reconstructed master key and the input share bytes now that
+  // we have the plaintext. The plaintext itself is left to the caller.
+  const sodium = await getSodium();
+  sodium.memzero(key);
+  for (const share of shares) sodium.memzero(share);
+
   return {
     filename: envelope.filename,
     mimeType: envelope.mimeType,
