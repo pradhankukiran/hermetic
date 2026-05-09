@@ -1,65 +1,112 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Hexagon, Hourglass, Link2, Users } from "lucide-react";
 
-export default function Home() {
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const modes = [
+  {
+    href: "/drop",
+    icon: Link2,
+    title: "Drop",
+    tagline: "Sealed by link",
+    description:
+      "Encrypt now, share via link. The decryption key lives in the URL fragment — never sent to a server. Optional burn-after-reading.",
+  },
+  {
+    href: "/capsule",
+    icon: Hourglass,
+    title: "Capsule",
+    tagline: "Sealed by time",
+    description:
+      "Encrypt for a future date using drand timelock. Nobody on Earth can open it early — including you, the recipient, or any server.",
+  },
+  {
+    href: "/switch",
+    icon: Users,
+    title: "Switch",
+    tagline: "Sealed by trust",
+    description:
+      "Split the decryption key across your trustees with Shamir Secret Sharing. Unlocks only if you go silent and K of them combine shares.",
+  },
+];
+
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-1 flex-col">
+      <section className="relative overflow-hidden border-b">
+        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="flex flex-col items-start gap-6 sm:items-center sm:text-center">
+            <div className="border-border/60 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
+              <Hexagon className="size-3" strokeWidth={1.75} />
+              <span className="text-muted-foreground">
+                End-to-end encrypted · Zero-knowledge · Decentralized
+              </span>
+            </div>
+            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
+              Sealed envelopes
+              <span className="text-muted-foreground"> for the internet.</span>
+            </h1>
+            <p className="text-muted-foreground max-w-2xl text-base sm:text-lg">
+              Encrypt anything in your browser. Choose how it gets unlocked: by link,
+              by date, or by your trustees. We never see the contents — and neither
+              does the network.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Link
+                href="/drop"
+                className="bg-foreground text-background inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-medium transition-opacity hover:opacity-90"
+              >
+                Seal something <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/threat-model"
+                className="hover:bg-muted inline-flex h-10 items-center rounded-full px-5 text-sm transition-colors"
+              >
+                How it works
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mb-8 flex flex-col gap-1">
+          <p className="text-muted-foreground text-xs tracking-widest uppercase">
+            Three unlock modes
           </p>
+          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Pick what triggers the unlock.
+          </h2>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {modes.map((mode) => {
+            const Icon = mode.icon;
+            return (
+              <Link key={mode.href} href={mode.href} className="group">
+                <Card className="hover:border-foreground/30 h-full transition-colors">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="bg-muted flex size-10 items-center justify-center rounded-lg">
+                        <Icon className="size-5" strokeWidth={1.75} />
+                      </div>
+                      <ArrowRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                    <CardTitle className="mt-3 text-xl">{mode.title}</CardTitle>
+                    <CardDescription className="text-xs tracking-wide uppercase">
+                      {mode.tagline}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      {mode.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
-      </main>
+      </section>
     </div>
   );
 }
