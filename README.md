@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hermetic
 
-## Getting Started
+Sealed envelopes for the internet.
 
-First, run the development server:
+End-to-end encrypted, zero-knowledge, decentralized-storage app for sealing things until conditions are met.
+
+## Three unlock modes
+
+- **Drop** — encrypt now, share via link. The recipient (and only the recipient) can open it. Optional burn-after-reading.
+- **Capsule** — encrypt now, decrypt at a future date. Uses [drand](https://drand.love) timelock encryption. Nobody on Earth can open it early.
+- **Switch** — encrypt now, decrypt only if you go silent and `K of N` trustees combine their shares. Built on Shamir's Secret Sharing.
+
+## How it works
+
+- **End-to-end encrypted** — content is encrypted in your browser before it ever leaves your device.
+- **Zero-knowledge** — the server stores ciphertext and minimal metadata. It never sees your content, your keys, or your password.
+- **Decentralized storage** — encrypted blobs live on IPFS via Pinata. Vercel hosts the orchestration; nothing on Vercel can decrypt anything.
+
+## Stack
+
+- Next.js 16 (App Router) + React 19
+- shadcn/ui + Tailwind CSS v4
+- Drizzle ORM + Vercel Postgres (Neon)
+- libsodium-wrappers for primitives
+- tlock-js for drand timelock
+- shamir-secret-sharing for key splitting
+- Pinata for IPFS pinning
+- Resend for transactional email
+- Vercel Cron for heartbeat checks
+
+## Local development
 
 ```bash
+cp .env.example .env.local
+# Fill in DATABASE_URL, PINATA_JWT, RESEND_API_KEY, AUTH_SECRET, etc.
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Threat model
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See [`docs/threat-model.md`](./docs/threat-model.md) — what Hermetic protects against, and what it doesn't.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## License
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
