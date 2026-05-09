@@ -88,26 +88,26 @@ export default function LandingPage() {
             Pick what triggers the unlock.
           </h2>
         </div>
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {modes.map((mode) => {
             const Icon = mode.icon;
             return (
               <Link key={mode.href} href={mode.href} className="group">
-                <Card className="hover:border-foreground/30 transition-colors">
+                <Card size="sm" className="hover:border-foreground/30 transition-colors">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <div className="bg-muted flex size-10 items-center justify-center rounded-lg">
-                        <Icon className="size-5" strokeWidth={1.75} />
+                      <div className="bg-muted flex size-8 items-center justify-center rounded-md">
+                        <Icon className="size-4" strokeWidth={1.75} />
                       </div>
-                      <ArrowRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="text-muted-foreground size-3.5 transition-transform group-hover:translate-x-0.5" />
                     </div>
-                    <CardTitle className="mt-3 text-xl">{mode.title}</CardTitle>
-                    <CardDescription className="text-xs tracking-wide uppercase">
+                    <CardTitle className="mt-2 text-base">{mode.title}</CardTitle>
+                    <CardDescription className="text-[10px] tracking-wide uppercase">
                       {mode.tagline}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-xs leading-snug">
                       {mode.description}
                     </p>
                   </CardContent>
