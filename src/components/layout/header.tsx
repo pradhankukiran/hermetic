@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Brand } from "@/components/layout/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getSessionUser } from "@/lib/auth/session";
 
 const navItems = [
   { href: "/drop", label: "Drop" },
@@ -9,7 +10,9 @@ const navItems = [
   { href: "/switch", label: "Switch" },
 ];
 
-export function Header() {
+export async function Header() {
+  const user = await getSessionUser();
+
   return (
     <header className="border-b bg-background/70 sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
@@ -24,6 +27,21 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 transition-colors"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/auth/signin"
+              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 transition-colors"
+            >
+              Sign in
+            </Link>
+          )}
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
