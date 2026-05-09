@@ -1,0 +1,61 @@
+import "server-only";
+
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import type { NextRequest } from "next/server";
+import { and, eq, gt, isNull } from "drizzle-orm";
+
+import { sha256 } from "@/lib/crypto";
+import { SESSION_COOKIE_NAME, SESSION_TTL_SECONDS, signSession } from "@/lib/auth/jwt";
+import { getDb, schema } from "@/lib/db/client";
+
+export async function GET(req: NextRequest) {
+  const token = req.nextUrl.searchParams.get("token");
+  if (!token) {
+    redirect("/auth/error?reason=missing-token");
+  }
+
+  const db = getDb();
+  const tokenHash = sha256(token);
+  const rows = await db
+    .select({
+      id: schema.authTokens.id,
+      userId: schema.authTokens.userId,
+    })
+    .from(schema.authTokens)
+    .where(
+      and(
+        eq(schema.authTokens.tokenHash, tokenHash),
+        gt(schema.authTokens.expiresAt, new Date()),
+        isNull(schema.authTokens.usedAt),
+      ),
+    )
+    .limit(1);
+
+  const row = rows[0];
+  if (!row) {
+    redirect("/auth/error?reason=invalid-or-expired");
+  }
+
+  await db
+    .update(schema.authTokens)
+    .set({ usedAt: new Date() })
+    .where(eq(schema.authTokens.id, row.id));
+
+  await db
+    .update(schema.users)
+    .set({ lastSeenAt: new Date() })
+    .where(eq(schema.users.id, row.userId));
+
+  const sessionToken = await signSession(row.userId);
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, sessionToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: SESSION_TTL_SECONDS,
+  });
+
+  redirect("/dashboard");
+}
