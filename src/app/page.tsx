@@ -101,8 +101,10 @@ export default function LandingPage() {
                       </div>
                       <ArrowRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5" />
                     </div>
-                    <CardTitle className="mt-2 text-lg">{mode.title}</CardTitle>
-                    <CardDescription className="text-xs tracking-wide uppercase">
+                    <CardTitle className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                      {mode.title}
+                    </CardTitle>
+                    <CardDescription className="text-base font-medium tracking-tight">
                       {mode.tagline}
                     </CardDescription>
                   </CardHeader>
