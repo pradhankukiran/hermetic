@@ -38,7 +38,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-3 sm:gap-5">
           <Hexagon
             className="size-14 sm:size-20 md:size-24"
-            strokeWidth={1.5}
+            strokeWidth={2.25}
           />
           <h1 className="text-6xl font-bold tracking-tight sm:text-7xl md:text-8xl">
             Hermetic
@@ -96,7 +96,7 @@ export default function LandingPage() {
                 <Card className="hover:border-foreground/30 transition-colors">
                   <CardHeader className="flex flex-row items-center gap-4">
                     <div className="bg-muted flex size-14 shrink-0 items-center justify-center rounded-xl sm:size-16">
-                      <Icon className="size-7 sm:size-8" strokeWidth={1.5} />
+                      <Icon className="size-7 sm:size-8" strokeWidth={2.5} />
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col">
                       <CardTitle className="text-3xl font-bold tracking-tight sm:text-4xl">
