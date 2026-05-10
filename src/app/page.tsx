@@ -149,8 +149,8 @@ function ModeCard({ mode }: { mode: Mode }) {
 export default function LandingPage() {
   return (
     <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-3 lg:gap-8 lg:py-16">
-      {/* Hero */}
-      <section className="flex flex-col items-center justify-center gap-6 text-center">
+      {/* Hero — middle column on lg+, top on mobile */}
+      <section className="order-1 flex flex-col items-center justify-center gap-6 text-center lg:order-2">
         <div className="flex items-center gap-3 sm:gap-4">
           <Hexagon
             className="size-10 sm:size-14 md:size-16"
@@ -187,15 +187,15 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Modes column 1 — Drop · Capsule · Switch · Pact · Halo */}
-      <section className="grid auto-rows-min gap-3">
+      {/* Modes left column — Drop · Capsule · Switch · Pact · Halo */}
+      <section className="order-2 grid auto-rows-min gap-3 lg:order-1">
         {modesLeft.map((mode) => (
           <ModeCard key={mode.href} mode={mode} />
         ))}
       </section>
 
-      {/* Modes column 2 — Beacon · Echo · Sleeper · Mirror · Sigil */}
-      <section className="grid auto-rows-min gap-3">
+      {/* Modes right column — Beacon · Echo · Sleeper · Mirror · Sigil */}
+      <section className="order-3 grid auto-rows-min gap-3">
         {modesRight.map((mode) => (
           <ModeCard key={mode.href} mode={mode} />
         ))}
