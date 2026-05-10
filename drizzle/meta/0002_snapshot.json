@@ -1,5 +1,5 @@
 {
-  "id": "4f2e3c56-303d-4677-8342-f7d39c44825a",
+  "id": "806d1865-af63-4e52-a1bb-6724c2b5db82",
   "prevId": "2b7c5e71-a447-4602-8cb6-10132e592f72",
   "version": "7",
   "dialect": "postgresql",
@@ -250,8 +250,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.mirrors": {
-      "name": "mirrors",
+    "public.sleepers": {
+      "name": "sleepers",
       "schema": "",
       "columns": {
         "id": {
@@ -261,31 +261,31 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "cid": {
           "name": "cid",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "holder_a_email_hash": {
-          "name": "holder_a_email_hash",
-          "type": "bytea",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "holder_b_email_hash": {
-          "name": "holder_b_email_hash",
-          "type": "bytea",
-          "primaryKey": false,
-          "notNull": true
-        },
         "status": {
           "name": "status",
-          "type": "mirror_status",
+          "type": "sleeper_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'active'"
+          "default": "'asleep'"
+        },
+        "released_at": {
+          "name": "released_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -296,7 +296,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "sleepers_owner_id_users_id_fk": {
+          "name": "sleepers_owner_id_users_id_fk",
+          "tableFrom": "sleepers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -568,11 +582,12 @@
         "magic_link"
       ]
     },
-    "public.mirror_status": {
-      "name": "mirror_status",
+    "public.sleeper_status": {
+      "name": "sleeper_status",
       "schema": "public",
       "values": [
-        "active",
+        "asleep",
+        "released",
         "revoked"
       ]
     },

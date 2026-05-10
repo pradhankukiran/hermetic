@@ -183,48 +183,31 @@ export const switchTrustees = pgTable(
 export const NOW = sql`now()`;
 
 // ---------------------------------------------------------------------------
-// echoes — Echo-mode metadata (sealed-bid auctions).
+// sleepers — Sleeper-mode metadata. Owner encrypts content client-side, server
+// stores only the CID and a status flag. The CID is hidden from the public
+// status endpoint until the owner explicitly flips status to "released".
+//
+// Unlike Switch, there is no timer, no trustees, and no Shamir split. The key
+// `K` rides in the URL fragment (#K) — same shape as Drop. The owner can
+// re-seal (revoke) at any time; that flips status back from "released" to
+// "revoked", at which point the public status endpoint stops returning the
+// CID. Anyone who already saved the CID can still fetch from IPFS, so the
+// only authoritative privacy gate is the URL fragment containing K.
 // ---------------------------------------------------------------------------
-export const echoes = pgTable("echoes", {
+export const sleeperStatus = pgEnum("sleeper_status", [
+  "asleep",
+  "released",
+  "revoked",
+]);
+
+export const sleepers = pgTable("sleepers", {
   id: uuid("id").primaryKey().defaultRandom(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  drandRound: bigint("drand_round", { mode: "number" }).notNull(),
-  drandChainHash: text("drand_chain_hash").notNull(),
-  closesAt: timestamp("closes_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  ownerId: uuid("owner_id")
     .notNull()
-    .defaultNow(),
-});
-
-export const echoBids = pgTable(
-  "echo_bids",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    echoId: uuid("echo_id")
-      .notNull()
-      .references(() => echoes.id, { onDelete: "cascade" }),
-    cid: text("cid").notNull(),
-    bidderName: text("bidder_name").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (t) => [index("echo_bids_echo_idx").on(t.echoId)],
-);
-
-// ---------------------------------------------------------------------------
-// mirrors — 2-of-2 mutual reveal. Both halves must combine to unlock.
-// Holder emails stored as SHA-256 hashes only. Shares are NEVER persisted.
-// ---------------------------------------------------------------------------
-export const mirrorStatus = pgEnum("mirror_status", ["active", "revoked"]);
-
-export const mirrors = pgTable("mirrors", {
-  id: uuid("id").primaryKey().defaultRandom(),
+    .references(() => users.id, { onDelete: "cascade" }),
   cid: text("cid").notNull(),
-  holderAEmailHash: bytea("holder_a_email_hash").notNull(),
-  holderBEmailHash: bytea("holder_b_email_hash").notNull(),
-  status: mirrorStatus("status").notNull().default("active"),
+  status: sleeperStatus("status").notNull().default("asleep"),
+  releasedAt: timestamp("released_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
