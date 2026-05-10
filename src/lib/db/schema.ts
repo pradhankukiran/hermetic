@@ -183,32 +183,59 @@ export const switchTrustees = pgTable(
 export const NOW = sql`now()`;
 
 // ---------------------------------------------------------------------------
-// sleepers — Sleeper-mode metadata. Owner encrypts content client-side, server
-// stores only the CID and a status flag. The CID is hidden from the public
-// status endpoint until the owner explicitly flips status to "released".
+// pacts — N-of-N consensus seal. Every party gets one Shamir share via email,
+// and ALL parties must paste their shares simultaneously on the unlock page
+// to reconstruct the key in the browser.
 //
-// Unlike Switch, there is no timer, no trustees, and no Shamir split. The key
-// `K` rides in the URL fragment (#K) — same shape as Drop. The owner can
-// re-seal (revoke) at any time; that flips status back from "released" to
-// "revoked", at which point the public status endpoint stops returning the
-// CID. Anyone who already saved the CID can still fetch from IPFS, so the
-// only authoritative privacy gate is the URL fragment containing K.
+// Unlike Switch, Pact has no dead-man's timer: the seal is open from the
+// moment of creation, but only when every party's share is present at the
+// same time. Status flips from "active" to "revoked" only if the owner
+// explicitly disables it.
+//
+// Shares are NOT stored — they are emailed at creation and live only in the
+// recipients' inboxes / password managers. The server holds nothing that
+// alone or in combination lets it reconstruct the key.
 // ---------------------------------------------------------------------------
-export const sleeperStatus = pgEnum("sleeper_status", [
-  "asleep",
-  "released",
-  "revoked",
-]);
+export const pactStatus = pgEnum("pact_status", ["active", "revoked"]);
 
-export const sleepers = pgTable("sleepers", {
+export const pacts = pgTable("pacts", {
   id: uuid("id").primaryKey().defaultRandom(),
   ownerId: uuid("owner_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   cid: text("cid").notNull(),
-  status: sleeperStatus("status").notNull().default("asleep"),
-  releasedAt: timestamp("released_at", { withTimezone: true }),
+  partyCountN: integer("party_count_n").notNull(),
+  status: pactStatus("status").notNull().default("active"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
+
+// ---------------------------------------------------------------------------
+// pact_members — one row per Pact party.
+//
+// As with switch_trustees, the email is stored in plaintext (alongside a
+// SHA-256 hash) so we can deliver the share at creation time and any future
+// notifications. Storing only the hash would break those flows.
+//
+// The share itself is NEVER stored.
+// ---------------------------------------------------------------------------
+export const pactMembers = pgTable(
+  "pact_members",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pactId: uuid("pact_id")
+      .notNull()
+      .references(() => pacts.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    emailHash: bytea("email_hash").notNull(),
+    shareIndex: integer("share_index").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("pact_members_pact_idx").on(t.pactId),
+    index("pact_members_email_idx").on(t.emailHash),
+  ],
+);
