@@ -133,6 +133,79 @@ intended to remain sealed for decades carry quantum risk.
 **Source:** `src/lib/crypto/timelock.ts`. Library: `tlock-js` (Protocol
 Labs).
 
+## WebAuthn PRF (Halo mode)
+
+**Algorithm:** WebAuthn PRF extension — the authenticator computes
+`HMAC-SHA-256(credential-bound-key, salt)` and returns a 32-byte output to
+the page. The credential-bound key never leaves the secure element.
+
+- The PRF output is used **directly as the KEK** (no HKDF needed — it is
+  already uniform-random 32 bytes).
+- A per-Halo random salt is stored in the envelope. Different (credential,
+  salt) pairs yield independent KEKs.
+- `residentKey: "required"` so unlock works from URL alone with no DB hint.
+- `allowCredentials: [credentialId]` on assertion forces the browser to
+  surface only the registered passkey; the AEAD tag check is the
+  cryptographic backstop if the wrong credential is somehow used.
+- Authenticators without PRF support fail closed with a clear error — we do
+  not silently fall back to a weaker mode.
+
+**Why this and not "encrypt to a server-known device key"?**
+
+- A server-known key can be compelled or copied. The PRF output never
+  exists on the server, never on the network, never as a recoverable secret
+  on disk. Only the authenticator can produce it, and only with user
+  presence + verification (biometric / PIN).
+
+**Source:** `src/lib/crypto/halo-prf.ts`, `src/lib/modes/halo.ts`. Library:
+`@simplewebauthn/server` + `@simplewebauthn/browser` (for support gates),
+plus the native `navigator.credentials` API for PRF-extension calls
+(SimpleWebAuthn doesn't yet model PRF salts in its TypeScript types).
+
+## Schnorr proof of knowledge (Sigil v2 stub)
+
+**Algorithm:** Schnorr Σ-protocol over `secp256k1` with the Fiat-Shamir
+transform — non-interactive proof that the prover knows a witness `x` such
+that `P = x·G`, without revealing `x`.
+
+- Domain-separated by tag `hermetic:sigil:schnorr:v=1` baked into the
+  challenge hash (prevents cross-protocol replay).
+- Round-trip + tamper tests cover proof verification, wrong-witness
+  rejection, and challenge-tag separation (12 tests).
+- **Not yet integrated with the unlock UI.** v1 Sigil derives the wrap key
+  from the witness via Argon2id (see KDF section). The Schnorr stub ships
+  for the v2 server-blind upgrade: the recipient proves knowledge to the
+  server, the server hands over the wrapped key, and the witness never
+  passes through Argon2id over the public ciphertext.
+
+**Source:** `src/lib/crypto/schnorr.ts`. Library: `@noble/curves`.
+
+## EVM chain reads (Beacon mode)
+
+**Library:** `viem`. We use only the read-side: `publicClient.getBlockNumber()`
+and `getBlock()`. No transactions are sent, no wallet integration, no
+private keys handled.
+
+- Default RPC: `https://eth.llamarpc.com` (public). Override with
+  `BEACON_RPC_URL` (server) or `NEXT_PUBLIC_BEACON_RPC_URL` (browser) for
+  reliability.
+- Beacon's chain anchor is a **UI gate**, not a cryptographic oracle: the
+  unlock page refuses to attempt decryption until `currentBlock >=
+  targetHeight`. The actual seal is an Argon2id-wrapped passphrase — see
+  the threat model for the honesty disclosure.
+
+**Source:** `src/lib/chain/viem.ts`, `src/lib/modes/beacon.ts`.
+
+## CSRF
+
+**Mechanism:** Same-origin assertion via `Origin` header (with `Referer`
+fallback) on every state-changing POST. Compared against
+`NEXT_PUBLIC_APP_URL`. Combined with the cookie `SameSite=Lax`, this
+defeats top-level POST navigations from attacker pages.
+
+**Source:** `src/lib/auth/csrf.ts`. Applied to: signin, signout, switches
+(create + checkin), pacts (create), sleepers (release + revoke).
+
 ## Sessions / authentication
 
 **Token:** signed JWT (HS256) over the user UUID, 30-day expiry. Stored

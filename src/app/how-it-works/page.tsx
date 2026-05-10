@@ -2,9 +2,16 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
+  Eye,
+  Fingerprint,
+  Gavel,
+  GitCompareArrows,
+  Handshake,
   Hourglass,
   KeyRound,
   Lock,
+  Power,
+  Radio,
   Send,
   ShieldCheck,
   type LucideIcon,
@@ -23,12 +30,19 @@ export default function HowItWorksPage() {
       />
 
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-16 px-4 py-16 sm:px-6 sm:py-20">
-        {/* Three modes */}
+        {/* Ten modes */}
         <Section
-          eyebrow="Three modes · same encryption"
+          eyebrow="Ten modes · same encryption"
           title="Pick what triggers the unlock."
         >
-          <div className="grid gap-4 sm:grid-cols-3">
+          <p className="text-muted-foreground -mt-2 max-w-2xl text-sm leading-relaxed">
+            Every mode reuses the same skeleton: a random symmetric key
+            encrypts the content under XChaCha20-Poly1305 with a mode-bound
+            AAD. What changes is the unlock <em>policy</em> — how that key gets
+            re-derived. Adding a mode is plugging in a different
+            <code> wrapKey</code> / <code>unwrapKey</code> strategy.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <ModeCard
               icon={Send}
               name="Drop"
@@ -45,7 +59,49 @@ export default function HowItWorksPage() {
               icon={KeyRound}
               name="Switch"
               tagline="Sealed by trust"
-              note="Split the key into N shares. Trustees hold them. K of N can combine and unlock — but only after the dead-man's deadline passes."
+              note="Dead-man's switch. Shamir-split the key across N trustees; if the owner goes silent past the deadline, K of N can combine."
+            />
+            <ModeCard
+              icon={Handshake}
+              name="Pact"
+              tagline="Sealed by consensus"
+              note="N-of-N agreement. Every party must combine their share — no quorum slack, no fallback. One holdout means the seal stays closed."
+            />
+            <ModeCard
+              icon={Fingerprint}
+              name="Halo"
+              tagline="Sealed by hardware"
+              note="Wrap the key under a WebAuthn PRF-derived KEK. Only the device with the registered passkey can produce the unwrap key."
+            />
+            <ModeCard
+              icon={Radio}
+              name="Beacon"
+              tagline="Sealed by event"
+              note="UI gates on an EVM block height (chain decides when) plus a passphrase the owner holds (decides who). Honest about being a UI gate, not an oracle."
+            />
+            <ModeCard
+              icon={Gavel}
+              name="Echo"
+              tagline="Sealed by reveal"
+              note="Sealed-bid auction. N bidders submit content tlock-encrypted to the same close round; every bid opens at the same instant."
+            />
+            <ModeCard
+              icon={Power}
+              name="Sleeper"
+              tagline="Sealed by command"
+              note="Sits encrypted indefinitely. Unlocks the moment the owner clicks release; can be re-sealed at any time."
+            />
+            <ModeCard
+              icon={GitCompareArrows}
+              name="Mirror"
+              tagline="Sealed by mutual disclosure"
+              note="2-of-2 Shamir. Two halves, two holders. Neither opens alone — both must combine in the same browser session."
+            />
+            <ModeCard
+              icon={Eye}
+              name="Sigil"
+              tagline="Sealed by proof"
+              note="Argon2id-wrapped key derivable only from the right witness. Schnorr proof primitives ship for the v2 server-blind upgrade."
             />
           </div>
         </Section>
@@ -111,27 +167,42 @@ export default function HowItWorksPage() {
             <BrutalCallout
               icon={AlertTriangle}
               title="Metadata"
-              body="Server learns: file size, timestamps, who shared with whom, hashed emails. Trustee emails for switches are stored in plaintext (so we can re-notify on trigger). Documented in docs/threat-model.md."
+              body="Server learns: file size, timestamps, who shared with whom, hashed emails, public auction titles for Echo. Trustee/member emails for Switch and Pact are stored as plaintext to enable re-notification; Mirror keeps holder emails as hashes only."
             />
             <BrutalCallout
               icon={AlertTriangle}
               title="Lost keys / shares"
-              body="If you lose the URL fragment, the file is gone. If trustees lose K shares, the switch is gone. There is no escrow, no key recovery. By design."
+              body="If you lose the URL fragment, the file is gone. If trustees lose K shares, the switch is gone. If you forget the Sigil witness or the Beacon passphrase, the seal is gone. There is no escrow, no recovery. By design."
             />
             <BrutalCallout
               icon={AlertTriangle}
               title="Pre-trigger collusion"
-              body="K trustees who collude before the switch fires can reconstruct the key — but the server hides the CID until status flips, so they need to obtain it some other way. Choose your trustees and threshold accordingly."
+              body="K trustees who collude before a Switch fires can reconstruct the key — but the server hides the CID until status flips. Pact requires unanimous (N-of-N) consent, so one party can always withhold. Mirror is 2-of-2 by design."
+            />
+            <BrutalCallout
+              icon={AlertTriangle}
+              title="Beacon UI gate"
+              body="The chain anchor on Beacon is a UI gate, not a cryptographic oracle. A determined attacker can ignore the block-height check and try the passphrase early. The passphrase is the actual seal; the chain decides when the UI offers the prompt."
+            />
+            <BrutalCallout
+              icon={AlertTriangle}
+              title="Sigil server-side ZK only"
+              body="V1 Sigil is server-side zero-knowledge: the server never sees the witness, but the unlocking page does (the user types it in). The Schnorr stub ships now for v2 where the recipient proves knowledge to the server without revealing it."
+            />
+            <BrutalCallout
+              icon={AlertTriangle}
+              title="Halo PRF availability"
+              body="Halo requires an authenticator that supports the WebAuthn PRF extension (Touch ID, Windows Hello, modern Yubikeys, Android passkeys all do). Older USB authenticators may not — we fail closed with a friendly message."
             />
             <BrutalCallout
               icon={AlertTriangle}
               title="Quantum adversaries"
-              body="XChaCha20-Poly1305 and Argon2id remain secure. Drand timelock relies on BLS12-381 pairings — vulnerable to a sufficiently powerful quantum computer running Shor's. None exists today."
+              body="XChaCha20-Poly1305 and Argon2id remain secure. Drand timelock relies on BLS12-381 pairings — vulnerable to a sufficiently powerful quantum computer running Shor's. Schnorr secp256k1 (Sigil v2) has the same caveat. None exists today."
             />
             <BrutalCallout
               icon={AlertTriangle}
               title="Vendor uptime"
-              body="Pinata is offline → CIDs unreachable. Vercel is down → can't create switches or check in. The data is still safe (encrypted at rest), but the app stops."
+              body="Pinata offline → CIDs unreachable. Vercel down → can't create accounts or check in. Public EVM RPC unreachable → Beacon can't read block height. Data stays safe (encrypted at rest), but the app stops."
             />
           </div>
         </Section>
@@ -150,7 +221,11 @@ export default function HowItWorksPage() {
               ["Hash", "SHA-256", "@noble/hashes"],
               ["Secret sharing", "Shamir over GF(256), 2 ≤ K ≤ N ≤ 255", "shamir-secret-sharing"],
               ["Timelock", "drand quicknet, BLS12-381 pairings", "tlock-js"],
+              ["Hardware-bound KEK", "WebAuthn PRF extension (HMAC-SHA256)", "@simplewebauthn/* + native WebAuthn"],
+              ["Proof of knowledge", "Schnorr Σ-protocol over secp256k1 + Fiat-Shamir", "@noble/curves (Sigil v2 stub)"],
+              ["Chain reads (Beacon)", "EVM JSON-RPC (block height)", "viem"],
               ["Sessions", "HS256 JWT, HttpOnly cookie", "jose"],
+              ["CSRF", "Origin / Referer same-origin assertion", "(in-house)"],
             ]}
           />
         </Section>

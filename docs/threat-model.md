@@ -71,6 +71,67 @@ secure as currently published.
 | Server hiding that the switch fired | Trustees can re-derive their share status if they preserved the original share email. The CID is discoverable from the public `/api/switches/[id]/status` endpoint once `triggered`. |
 | Account takeover (attacker controls owner email) | Trustees still need to reach K. The attacker cannot prematurely trigger anything by checking *in*; only by stopping check-ins, which already triggers. They cannot trigger *now* by stopping; they have to wait the configured inactivity period. |
 
+### Pact mode
+
+| Threat | Protection |
+|--------|------------|
+| Operator forging consent | N-of-N Shamir means the server cannot reconstruct the key with one share missing. Even all-but-one collusion fails. |
+| Single party defection | If one party refuses to sign, the seal stays closed forever. That's the design — there's no quorum slack. Choose your parties before sealing. |
+| Server claiming a Pact is active when it's not | Pacts have only `active` / `revoked` status. Members can verify the CID against their original share email. |
+
+### Halo mode
+
+| Threat | Protection |
+|--------|------------|
+| Operator decrypting on the server | The KEK is derived from a WebAuthn PRF assertion — the authenticator never exports it. The server only ever sees the wrapped envelope. |
+| Wrong device on unlock | `allowCredentials: [credentialId]` forces the browser to surface only the registered passkey. AEAD tag check on unwrap is the cryptographic backstop. |
+| Stolen passkey | A passkey requires user verification (biometric / PIN). Stolen device + biometric = trust collapses; that's outside Hermetic's scope, see "Compromised creator endpoint." |
+| Authenticator without PRF | Halo refuses to seal and surfaces a clear error. We do not silently fall back to a weaker mode. |
+
+### Beacon mode
+
+| Threat | Protection |
+|--------|------------|
+| Operator decrypting before the block | The wrap key is derived from an Argon2id KEK over the owner's passphrase. The chain block-height check is a UI gate, **not a cryptographic oracle.** Without the passphrase, no block height matters. |
+| Operator pretending a height is reached | The unlock UI calls a public EVM RPC directly from the browser. The user can verify against any block explorer. |
+| Compromise of one drand-style oracle | Beacon does not use drand or oracles in v1; it uses chain block height. EVM mainnet's consensus is the t-of-n. |
+| Sealing for a block in the past | Rejected by the create form. |
+
+### Echo mode
+
+| Threat | Protection |
+|--------|------------|
+| Operator peeking at bids early | Each bid is timelock-encrypted to the auction's drand round. tlock cannot be brute-forced without the future drand signature. |
+| Bidder lifting another bid into a different auction | AAD includes the auction id + round + chain hash. Replayed ciphertext fails the AEAD tag. |
+| Late submission after close | Server returns `410 Gone` for bids submitted after `closesAt`. Even if accepted, they would be sealed under the *next* round, useless for this auction. |
+| Bidder identity leaking | Only the chosen `bidderName` is stored — Hermetic never sees the bidder's email or IP-bound identity beyond standard request logs. |
+
+### Sleeper mode
+
+| Threat | Protection |
+|--------|------------|
+| Operator releasing without owner consent | The release endpoint requires a session cookie from the owner. CSRF is enforced via Origin checks. State changes use atomic `UPDATE` with `ownerId` in the WHERE clause. |
+| Stale CID leak after revoke | Revoke flips status; subsequent status reads hide the CID. **However, an attacker who already fetched the CID from a public release moment retains the ciphertext on IPFS** — they still need the URL fragment to decrypt. Recipients should treat any released sleeper as potentially permanent. |
+| Owner account takeover | Attacker can release/revoke at will. Mitigation: short JWT expiry (30 days), no password to phish, magic-link emails go to a secondary device. We do not currently support session revocation; documented as a follow-up. |
+
+### Mirror mode
+
+| Threat | Protection |
+|--------|------------|
+| Operator combining halves | Server never holds either half. Both halves live exclusively in trustee email inboxes after creation. |
+| One holder defects | A single half reveals zero. The seal stays closed forever — that's the design (mutual disclosure or nothing). |
+| Server claiming Mirror is revoked | Status is just metadata. A holder who has both halves out-of-band can always reconstruct independent of server status. |
+| Holder identity exposure | Holder emails are stored as SHA-256 hashes only — Hermetic cannot enumerate who the holders are. |
+
+### Sigil mode
+
+| Threat | Protection |
+|--------|------------|
+| Operator brute-forcing the witness | The wrap key is Argon2id-derived (`balanced` preset: t=3, m=64 MiB). Brute-force is computationally expensive; the salt is per-Sigil random. |
+| Operator-side ZK | The server stores only the envelope on IPFS. No witness, salt, or KEK ever crosses the wire. **However, the unlocking page sees the witness in plaintext** (the user types it in). v1 is server-side ZK only. |
+| Witness sharing weakness | The witness is shared as a memorable string / riddle answer. Low-entropy witnesses (single words, dates) are dictionary-attackable; document a "use ≥128 bits of entropy or a high-cost preset" recommendation in the create form. |
+| v2 upgrade path | The Schnorr proof primitives (`src/lib/crypto/schnorr.ts`) ship now. v2 will let the recipient prove witness knowledge to the server without revealing it; the server then hands over a wrapped key. The witness never materializes anywhere except the recipient's mind. |
+
 ---
 
 ## What Hermetic does **NOT** protect against
@@ -100,6 +161,18 @@ The server necessarily learns metadata. Specifically:
 - **Switches:** CID, threshold K, share count N, inactivity duration,
   last-checkin timestamp, owner account, **trustee email addresses in
   plaintext** (for re-notification when triggered), status transitions.
+- **Pacts:** CID, party count N, owner account, **member email addresses in
+  plaintext** (same trade-off as Switch trustees). Member email hashes also
+  stored for indexing.
+- **Halos:** No DB rows. Server only sees the IPFS upload (envelope),
+  request metadata.
+- **Beacons:** CID, target block height, chain id, owner account.
+- **Echoes:** **public auction title and description** (intentionally — they
+  describe what the bids are about), drand round, close timestamp, bid CIDs
+  and bidder display names. Bid contents stay sealed until the round.
+- **Sleepers:** CID, owner account, status, release timestamp.
+- **Mirrors:** CID, holder email **hashes** (no plaintext), status.
+- **Sigils:** No DB rows. Server only sees the IPFS upload.
 
 We document trustee emails as **plaintext** explicitly. Hashing them would
 prevent the trigger-time notification from working; we chose to make
