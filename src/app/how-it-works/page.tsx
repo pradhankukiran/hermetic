@@ -42,7 +42,7 @@ export default function HowItWorksPage() {
             re-derived. Adding a mode is plugging in a different
             <code> wrapKey</code> / <code>unwrapKey</code> strategy.
           </p>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             <ModeCard
               icon={Send}
               name="Drop"
@@ -158,7 +158,7 @@ export default function HowItWorksPage() {
           eyebrow="What we don't protect"
           title="And we're honest about it."
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             <BrutalCallout
               icon={AlertTriangle}
               title="Compromised browser"
@@ -203,6 +203,11 @@ export default function HowItWorksPage() {
               icon={AlertTriangle}
               title="Vendor uptime"
               body="Pinata offline → CIDs unreachable. Vercel down → can't create accounts or check in. Public EVM RPC unreachable → Beacon can't read block height. Data stays safe (encrypted at rest), but the app stops."
+            />
+            <BrutalCallout
+              icon={AlertTriangle}
+              title="Email-account compromise"
+              body="Magic-link auth means your email IS the credential. An attacker who reads your inbox can sign in and trigger Sleeper releases or revoke a Switch. Use a fresh address with strong 2FA, and never let Hermetic auth share an inbox with high-value services."
             />
           </div>
         </Section>
