@@ -181,6 +181,7 @@ export const switchTrustees = pgTable(
 
 // Drizzle SQL helper to reference NOW() at insert/update time when needed.
 export const NOW = sql`now()`;
+<<<<<<< HEAD
 
 // ---------------------------------------------------------------------------
 // echoes — Echo-mode metadata (sealed-bid auctions).
@@ -231,3 +232,32 @@ export const echoBids = pgTable(
   },
   (t) => [index("echo_bids_echo_idx").on(t.echoId)],
 );
+||||||| fcb1757
+=======
+
+// ---------------------------------------------------------------------------
+// mirrors — 2-of-2 mutual reveal. The creator (an unauthenticated "broker")
+// composes the seal, splits the symmetric key into TWO shares, and emails
+// one share to each holder. Neither holder can unlock alone — both halves
+// must be combined in the same browser session to decrypt the contents
+// fetched from IPFS.
+//
+// There is no owner: the creator is just a third-party who fans the halves
+// out and is not retained by the system. Holder emails are stored as
+// SHA-256 hashes only (no plaintext) — the server cannot enumerate who the
+// holders are, and we never need to re-notify them. The shares themselves
+// are NEVER stored: they are handed to Resend for delivery and dropped.
+// ---------------------------------------------------------------------------
+export const mirrorStatus = pgEnum("mirror_status", ["active", "revoked"]);
+
+export const mirrors = pgTable("mirrors", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  cid: text("cid").notNull(),
+  holderAEmailHash: bytea("holder_a_email_hash").notNull(),
+  holderBEmailHash: bytea("holder_b_email_hash").notNull(),
+  status: mirrorStatus("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+>>>>>>> worktree-agent-a9366862dfa787578
