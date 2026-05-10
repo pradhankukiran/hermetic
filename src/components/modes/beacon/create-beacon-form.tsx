@@ -36,20 +36,24 @@ export function CreateBeaconForm() {
   const [targetHeight, setTargetHeight] = useState<bigint | null>(null);
   const [passphrase, setPassphrase] = useState("");
   const [passMode, setPassMode] = useState<"auto" | "custom">("auto");
-  const [generating, setGenerating] = useState(false);
+  // True until the auto-generated passphrase finishes. Initialized to true
+  // because we kick off generation on mount; the effect flips it to false.
+  const [generating, setGenerating] = useState(true);
 
   // Generate an initial 24-byte random passphrase on mount when in auto mode.
+  // All setState calls are scheduled inside the async path so the synchronous
+  // body of the effect does no setState (react-hooks/set-state-in-effect).
   useEffect(() => {
     if (passMode !== "auto" || passphrase) return;
     let cancelled = false;
-    setGenerating(true);
-    randomBase64Url(24)
-      .then((p) => {
+    void (async () => {
+      try {
+        const p = await randomBase64Url(24);
         if (!cancelled) setPassphrase(p);
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setGenerating(false);
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -67,7 +71,7 @@ export function CreateBeaconForm() {
   const busy = phase.kind === "encrypting" || phase.kind === "uploading";
   const hasContent = tab === "file" ? file != null : text.trim().length > 0;
   const validPass = passphrase.length >= 8;
-  const validHeight = targetHeight != null && targetHeight > 0n;
+  const validHeight = targetHeight != null && targetHeight > BigInt(0);
   const canSeal = !busy && hasContent && validHeight && validPass;
 
   async function seal() {
@@ -103,6 +107,7 @@ export function CreateBeaconForm() {
     setTargetHeight(null);
     setPassphrase("");
     setPassMode("auto");
+    setGenerating(true);
   }
 
   if (phase.kind === "done") {

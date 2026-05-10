@@ -8,10 +8,9 @@ import { Input } from "@/components/ui/input";
 import { getCurrentBlockHeight } from "@/lib/modes/beacon";
 
 /**
- * Picker for the unlock block height. Quick presets ("+10 blocks",
- * "+1 hour ≈ 300", etc.) calculated from the current head, plus a manual
- * absolute-block input as a fallback. Mainnet block time is ~12s, so the
- * preset labels are reasonable rules of thumb.
+ * Picker for the unlock block height. Quick presets ("+10 min", "+1 hour",
+ * etc., translated into block deltas at 12s/block) calculated from the
+ * current chain head, plus an absolute-block input as a fallback.
  *
  * Stays honest: doesn't pretend to know exactly when a future block will
  * land, only that the chain head must equal-or-exceed the chosen number
@@ -43,34 +42,39 @@ export function HeightPicker({
   disabled?: boolean;
 }) {
   const [head, setHead] = useState<bigint | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [textValue, setTextValue] = useState<string>(
-    value != null ? value.toString() : "",
-  );
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
-  async function refresh() {
+  // Fetch the current head once on mount + whenever the user clicks refresh.
+  // All setState calls live behind an `await`, so the synchronous body of the
+  // effect does no setState — keeps react-hooks/set-state-in-effect happy.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const h = await getCurrentBlockHeight();
+        if (cancelled) return;
+        setHead(h);
+        setError(null);
+      } catch (err) {
+        if (cancelled) return;
+        setError(
+          err instanceof Error ? err.message : "Failed to read chain head",
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshNonce]);
+
+  function refresh() {
     setLoading(true);
-    setError(null);
-    try {
-      const h = await getCurrentBlockHeight();
-      setHead(h);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to read chain head");
-    } finally {
-      setLoading(false);
-    }
+    setRefreshNonce((n) => n + 1);
   }
-
-  // Fetch the current head once on mount.
-  useEffect(() => {
-    void refresh();
-  }, []);
-
-  // Keep the text input in sync if the parent changes value (e.g. via preset).
-  useEffect(() => {
-    if (value != null) setTextValue(value.toString());
-  }, [value]);
 
   function applyPreset(addSeconds: number) {
     if (head == null) return;
@@ -79,21 +83,30 @@ export function HeightPicker({
   }
 
   function applyText(text: string) {
-    setTextValue(text);
-    if (text.trim() === "") return;
+    if (text.trim() === "") {
+      // We can't represent "cleared" through the parent's bigint-or-null prop
+      // when there's no other channel; the user can type non-numeric chars to
+      // wipe and start over. The rendered value here will go back to "".
+      return;
+    }
     try {
       const n = BigInt(text.trim());
-      if (n <= 0n) return;
+      if (n <= BigInt(0)) return;
       onChange(n);
     } catch {
       // Non-integer input — ignore until the user fixes it.
     }
   }
 
+  // Fully derived from the prop — no local mirror, no setState-during-render.
+  const inputValue = value != null ? value.toString() : "";
+
   const blocksRemaining =
     value != null && head != null && value > head ? value - head : null;
   const approxSeconds =
-    blocksRemaining != null ? Number(blocksRemaining) * SECONDS_PER_BLOCK : null;
+    blocksRemaining != null
+      ? Number(blocksRemaining) * SECONDS_PER_BLOCK
+      : null;
 
   return (
     <div className="flex flex-col gap-3">
@@ -140,7 +153,8 @@ export function HeightPicker({
         inputMode="numeric"
         pattern="[0-9]*"
         placeholder="Or enter an absolute block number"
-        value={textValue}
+        defaultValue={inputValue}
+        key={inputValue}
         onChange={(e) => applyText(e.target.value)}
         disabled={disabled}
         aria-label="Target block height"
@@ -157,7 +171,8 @@ export function HeightPicker({
             <span className="text-foreground font-mono">
               {blocksRemaining?.toString()}
             </span>{" "}
-            blocks from now (~{formatSeconds(approxSeconds ?? 0)} at 12s blocks).
+            blocks from now (~{formatSeconds(approxSeconds ?? 0)} at 12s
+            blocks).
           </p>
         ) : (
           <p className="text-destructive text-xs">

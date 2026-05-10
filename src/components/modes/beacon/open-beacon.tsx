@@ -96,13 +96,10 @@ export function OpenBeacon({ cid }: { cid: string }) {
         });
       } catch (err) {
         // Don't blow up the page on a transient RPC hiccup; the next tick
-        // will retry. We do still surface the latest error string.
+        // will retry. We do still surface the latest error string in the
+        // browser console for diagnostics.
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : String(err);
-        setPhase((p) =>
-          p.kind === "waiting" ? p : p, // type-narrow no-op
-        );
-        // eslint-disable-next-line no-console
         console.warn("beacon poll failed:", msg);
       }
     };

@@ -131,7 +131,7 @@ export async function createBeacon(
   passphrase: string,
   opts: { chainId?: number } = {},
 ): Promise<CreatedBeacon> {
-  if (targetHeight <= 0n) {
+  if (targetHeight <= BigInt(0)) {
     throw new Error("targetHeight must be positive");
   }
   if (passphrase.length < 8) {
