@@ -153,8 +153,7 @@ export function HeightPicker({
         inputMode="numeric"
         pattern="[0-9]*"
         placeholder="Or enter an absolute block number"
-        defaultValue={inputValue}
-        key={inputValue}
+        value={inputValue}
         onChange={(e) => applyText(e.target.value)}
         disabled={disabled}
         aria-label="Target block height"
