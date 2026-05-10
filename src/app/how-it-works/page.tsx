@@ -29,7 +29,7 @@ export default function HowItWorksPage() {
         description="Hermetic encrypts every byte in your browser. The server, the network, the cloud provider — none of them can read your content. We can hand them anything they ask for. What they get is ciphertext."
       />
 
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-16 px-4 py-16 sm:px-6 sm:py-20">
+      <div className="flex w-full flex-col gap-16 px-4 py-16 sm:px-6 sm:py-20 lg:px-12">
         {/* Ten modes */}
         <Section
           eyebrow="Ten modes · same encryption"
