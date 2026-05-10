@@ -1,7 +1,7 @@
 import { Gavel } from "lucide-react";
 
-import { ComingSoon } from "@/components/layout/coming-soon";
 import { ModeHero } from "@/components/layout/mode-hero";
+import { CreateAuctionForm } from "@/components/modes/echo/create-auction-form";
 
 export default function EchoPage() {
   return (
@@ -10,10 +10,10 @@ export default function EchoPage() {
         icon={Gavel}
         title="Echo"
         tagline="Sealed by reveal"
-        description="Sealed-bid auction. N parties submit bids encrypted under a shared drand round; everyone's bid opens at the same instant when the round arrives."
+        description="Sealed-bid auction. N parties submit bids encrypted under a shared drand round; every bid opens at the same instant when the round arrives — even the auctioneer cannot peek before then."
       />
       <section className="flex flex-col">
-        <ComingSoon mode="Echo" />
+        <CreateAuctionForm />
       </section>
     </div>
   );
