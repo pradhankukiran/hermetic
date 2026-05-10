@@ -13,7 +13,7 @@ export function PageHeader({
 }) {
   return (
     <div className="border-b">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-10 sm:px-6 sm:py-12">
+      <div className="flex w-full flex-col gap-5 px-4 py-10 sm:px-6 sm:py-12 lg:px-12">
         <div className="flex items-center gap-4">
           {Icon ? (
             <div className="bg-foreground text-background flex size-14 shrink-0 items-center justify-center sm:size-16">
