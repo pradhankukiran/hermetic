@@ -181,3 +181,34 @@ export const switchTrustees = pgTable(
 
 // Drizzle SQL helper to reference NOW() at insert/update time when needed.
 export const NOW = sql`now()`;
+
+// ---------------------------------------------------------------------------
+// sleepers — Sleeper-mode metadata. Owner encrypts content client-side, server
+// stores only the CID and a status flag. The CID is hidden from the public
+// status endpoint until the owner explicitly flips status to "released".
+//
+// Unlike Switch, there is no timer, no trustees, and no Shamir split. The key
+// `K` rides in the URL fragment (#K) — same shape as Drop. The owner can
+// re-seal (revoke) at any time; that flips status back from "released" to
+// "revoked", at which point the public status endpoint stops returning the
+// CID. Anyone who already saved the CID can still fetch from IPFS, so the
+// only authoritative privacy gate is the URL fragment containing K.
+// ---------------------------------------------------------------------------
+export const sleeperStatus = pgEnum("sleeper_status", [
+  "asleep",
+  "released",
+  "revoked",
+]);
+
+export const sleepers = pgTable("sleepers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  cid: text("cid").notNull(),
+  status: sleeperStatus("status").notNull().default("asleep"),
+  releasedAt: timestamp("released_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
