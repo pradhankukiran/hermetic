@@ -1,5 +1,5 @@
 {
-  "id": "b9c4dad4-0dd4-4bcb-81b1-c73f11c040f3",
+  "id": "afe7bb8b-2a0c-4b97-9110-223e3eb632e0",
   "prevId": "2b7c5e71-a447-4602-8cb6-10132e592f72",
   "version": "7",
   "dialect": "postgresql",
@@ -84,6 +84,72 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.beacons": {
+      "name": "beacons",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "cid": {
+          "name": "cid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "target_height": {
+          "name": "target_height",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chain_id": {
+          "name": "chain_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "beacons_owner_id_users_id_fk": {
+          "name": "beacons_owner_id_users_id_fk",
+          "tableFrom": "beacons",
+          "tableTo": "users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -246,169 +312,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.pact_members": {
-      "name": "pact_members",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "pact_id": {
-          "name": "pact_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email_hash": {
-          "name": "email_hash",
-          "type": "bytea",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "share_index": {
-          "name": "share_index",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "pact_members_pact_idx": {
-          "name": "pact_members_pact_idx",
-          "columns": [
-            {
-              "expression": "pact_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "pact_members_email_idx": {
-          "name": "pact_members_email_idx",
-          "columns": [
-            {
-              "expression": "email_hash",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "pact_members_pact_id_pacts_id_fk": {
-          "name": "pact_members_pact_id_pacts_id_fk",
-          "tableFrom": "pact_members",
-          "tableTo": "pacts",
-          "columnsFrom": [
-            "pact_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.pacts": {
-      "name": "pacts",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "owner_id": {
-          "name": "owner_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cid": {
-          "name": "cid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "party_count_n": {
-          "name": "party_count_n",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "pact_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'active'"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "pacts_owner_id_users_id_fk": {
-          "name": "pacts_owner_id_users_id_fk",
-          "tableFrom": "pacts",
-          "tableTo": "users",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -676,14 +579,6 @@
       "schema": "public",
       "values": [
         "magic_link"
-      ]
-    },
-    "public.pact_status": {
-      "name": "pact_status",
-      "schema": "public",
-      "values": [
-        "active",
-        "revoked"
       ]
     },
     "public.switch_status": {
