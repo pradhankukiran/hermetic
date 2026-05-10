@@ -1,7 +1,7 @@
 import { Fingerprint } from "lucide-react";
 
-import { ComingSoon } from "@/components/layout/coming-soon";
 import { ModeHero } from "@/components/layout/mode-hero";
+import { CreateHaloForm } from "@/components/modes/halo/create-halo-form";
 
 export default function HaloPage() {
   return (
@@ -10,10 +10,10 @@ export default function HaloPage() {
         icon={Fingerprint}
         title="Halo"
         tagline="Sealed by hardware"
-        description="Wrapped to a passkey or WebAuthn credential. Only the device with that credential can unlock — not even with the right password from another machine."
+        description="Wrapped to a passkey via the WebAuthn PRF extension. Only the device that registered the passkey can unlock — not even with the right URL from another machine."
       />
       <section className="flex flex-col">
-        <ComingSoon mode="Halo" />
+        <CreateHaloForm />
       </section>
     </div>
   );
