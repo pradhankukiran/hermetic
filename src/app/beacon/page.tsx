@@ -1,7 +1,7 @@
 import { Radio } from "lucide-react";
 
-import { ComingSoon } from "@/components/layout/coming-soon";
 import { ModeHero } from "@/components/layout/mode-hero";
+import { CreateBeaconForm } from "@/components/modes/beacon/create-beacon-form";
 
 export default function BeaconPage() {
   return (
@@ -9,11 +9,11 @@ export default function BeaconPage() {
       <ModeHero
         icon={Radio}
         title="Beacon"
-        tagline="Sealed by event"
-        description="Unlocks when a verifiable on-chain event fires — a block height, a contract storage value, or an oracle reading. The chain decides when, not us."
+        tagline="Sealed by block"
+        description="Pick a future Ethereum mainnet block. The unlock page refuses to attempt decryption until the chain has mined that block, then asks for the owner passphrase. The chain decides when, the passphrase decides who."
       />
       <section className="flex flex-col">
-        <ComingSoon mode="Beacon" />
+        <CreateBeaconForm />
       </section>
     </div>
   );
