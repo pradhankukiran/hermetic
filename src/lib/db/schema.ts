@@ -181,3 +181,24 @@ export const switchTrustees = pgTable(
 
 // Drizzle SQL helper to reference NOW() at insert/update time when needed.
 export const NOW = sql`now()`;
+
+// ---------------------------------------------------------------------------
+// beacons — Beacon-mode metadata. Beacon envelopes are gated on an EVM
+// block height: the unlock UI refuses to attempt decryption until the
+// configured chain has mined block >= targetHeight. The cryptographic seal
+// itself is a passphrase the owner holds out-of-band — the chain anchor is
+// a UI gate, not an oracle (see `src/lib/modes/beacon.ts` JSDoc).
+//
+// We persist only public metadata: chain id, target height, IPFS pointer.
+// No passphrase, salt, KEK, content key, or wrapped key ever lives here.
+// ---------------------------------------------------------------------------
+export const beacons = pgTable("beacons", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  cid: text("cid").notNull(),
+  ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
+  targetHeight: bigint("target_height", { mode: "bigint" }).notNull(),
+  chainId: integer("chain_id").notNull().default(1),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
