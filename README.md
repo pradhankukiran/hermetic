@@ -40,16 +40,16 @@ Same crypto skeleton everywhere — random symmetric key encrypts the content wi
 
 | Mode | Tagline | Unlock condition |
 |------|---------|------------------|
-| **🔗 Drop** | _Sealed by link_ | The decryption key lives in the URL fragment. Anyone with the link decrypts; the server never sees the key. |
-| **⏳ Capsule** | _Sealed by time_ | Decrypts only after the chosen drand quicknet round arrives. Nobody — not us, not the recipient, not any drand operator alone — can open it early. |
-| **🔑 Switch** | _Sealed by trust_ | Dead-man's switch. Key is Shamir-split among `N` trustees; if the owner goes silent past the deadline, any `K` trustees can combine and unlock. |
-| **🤝 Pact** | _Sealed by consensus_ | `N`-of-`N` agreement. Every party must combine their share — no quorum slack, no fallback. |
-| **🛡 Halo** | _Sealed by hardware_ | Wrapped under a WebAuthn PRF-derived KEK. Only the device with the registered passkey can unlock. |
-| **📡 Beacon** | _Sealed by event_ | UI gated on an EVM block height (chain decides _when_) plus an owner passphrase (decides _who_). |
-| **⚖️ Echo** | _Sealed by reveal_ | Sealed-bid auction. Bidders submit content tlock-encrypted to a shared close round; every bid opens at the same instant. |
-| **⚡ Sleeper** | _Sealed by command_ | Sits encrypted indefinitely. Unlocks the moment the owner clicks release; can be re-sealed at any time. |
-| **🔍 Mirror** | _Sealed by mutual disclosure_ | 2-of-2 Shamir. Two halves, two holders. Neither opens alone — both must combine. |
-| **👁 Sigil** | _Sealed by proof_ | Argon2id-wrapped key derivable only from the right witness. Stub Schnorr proof primitives ship for the v2 server-blind upgrade. |
+| **Drop** | _Sealed by link_ | The decryption key lives in the URL fragment. Anyone with the link decrypts; the server never sees the key. |
+| **Capsule** | _Sealed by time_ | Decrypts only after the chosen drand quicknet round arrives. Nobody — not us, not the recipient, not any drand operator alone — can open it early. |
+| **Switch** | _Sealed by trust_ | Dead-man's switch. Key is Shamir-split among `N` trustees; if the owner goes silent past the deadline, any `K` trustees can combine and unlock. |
+| **Pact** | _Sealed by consensus_ | `N`-of-`N` agreement. Every party must combine their share — no quorum slack, no fallback. |
+| **Halo** | _Sealed by hardware_ | Wrapped under a WebAuthn PRF-derived KEK. Only the device with the registered passkey can unlock. |
+| **Beacon** | _Sealed by event_ | UI gated on an EVM block height (chain decides _when_) plus an owner passphrase (decides _who_). |
+| **Echo** | _Sealed by reveal_ | Sealed-bid auction. Bidders submit content tlock-encrypted to a shared close round; every bid opens at the same instant. |
+| **Sleeper** | _Sealed by command_ | Sits encrypted indefinitely. Unlocks the moment the owner clicks release; can be re-sealed at any time. |
+| **Mirror** | _Sealed by mutual disclosure_ | 2-of-2 Shamir. Two halves, two holders. Neither opens alone — both must combine. |
+| **Sigil** | _Sealed by proof_ | Argon2id-wrapped key derivable only from the right witness. Stub Schnorr proof primitives ship for the v2 server-blind upgrade. |
 
 The whole product lives in the moment between "I sealed this" and "now it's unlockable." Hermetic gives you ten different rules for what makes that moment arrive.
 

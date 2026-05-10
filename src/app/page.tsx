@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { RandomSealButton } from "@/components/random-seal-button";
 import {
   Card,
   CardContent,
@@ -172,12 +173,7 @@ export default function LandingPage() {
         </p>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          <Link
-            href="/drop"
-            className="bg-foreground text-background inline-flex h-10 items-center gap-2 px-5 text-xs font-bold uppercase tracking-wide transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-foreground/90"
-          >
-            Seal something <ArrowRight className="size-3.5" />
-          </Link>
+          <RandomSealButton />
           <Link
             href="/how-it-works"
             className="border-2 border-foreground bg-background text-foreground hover:bg-muted inline-flex h-10 items-center gap-2 px-5 text-xs font-bold uppercase tracking-wide transition-colors"
