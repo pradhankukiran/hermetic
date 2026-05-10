@@ -1,7 +1,7 @@
 import { Eye } from "lucide-react";
 
-import { ComingSoon } from "@/components/layout/coming-soon";
 import { ModeHero } from "@/components/layout/mode-hero";
+import { CreateSigilForm } from "@/components/modes/sigil/create-sigil-form";
 
 export default function SigilPage() {
   return (
@@ -10,10 +10,10 @@ export default function SigilPage() {
         icon={Eye}
         title="Sigil"
         tagline="Sealed by proof"
-        description="Unlocks when someone proves they know the answer — without revealing it. Zero-knowledge proof of knowledge guards the seal."
+        description="Unlocks when someone proves they know the answer — without revealing it to us. Pick a witness, attach a riddle, share the link. The witness never leaves the recipient's browser."
       />
       <section className="flex flex-col">
-        <ComingSoon mode="Sigil" />
+        <CreateSigilForm />
       </section>
     </div>
   );
