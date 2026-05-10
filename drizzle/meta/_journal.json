@@ -15,6 +15,13 @@
       "when": 1778348849265,
       "tag": "0001_add_trustee_email",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778410307971,
+      "tag": "0002_add_mirror",
+      "breakpoints": true
     }
   ]
 }
