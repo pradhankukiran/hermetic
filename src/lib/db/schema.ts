@@ -183,14 +183,7 @@ export const switchTrustees = pgTable(
 export const NOW = sql`now()`;
 
 // ---------------------------------------------------------------------------
-// beacons — Beacon-mode metadata. Beacon envelopes are gated on an EVM
-// block height: the unlock UI refuses to attempt decryption until the
-// configured chain has mined block >= targetHeight. The cryptographic seal
-// itself is a passphrase the owner holds out-of-band — the chain anchor is
-// a UI gate, not an oracle (see `src/lib/modes/beacon.ts` JSDoc).
-//
-// We persist only public metadata: chain id, target height, IPFS pointer.
-// No passphrase, salt, KEK, content key, or wrapped key ever lives here.
+// beacons — chain block-height gated unlock; passphrase is the actual seal.
 // ---------------------------------------------------------------------------
 export const beacons = pgTable("beacons", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -202,3 +195,110 @@ export const beacons = pgTable("beacons", {
     .notNull()
     .defaultNow(),
 });
+
+// ---------------------------------------------------------------------------
+// echoes — sealed-bid auctions; each bid is timelock-encrypted to the round.
+// ---------------------------------------------------------------------------
+export const echoes = pgTable("echoes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  drandRound: bigint("drand_round", { mode: "number" }).notNull(),
+  drandChainHash: text("drand_chain_hash").notNull(),
+  closesAt: timestamp("closes_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const echoBids = pgTable(
+  "echo_bids",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    echoId: uuid("echo_id")
+      .notNull()
+      .references(() => echoes.id, { onDelete: "cascade" }),
+    cid: text("cid").notNull(),
+    bidderName: text("bidder_name").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("echo_bids_echo_idx").on(t.echoId)],
+);
+
+// ---------------------------------------------------------------------------
+// mirrors — 2-of-2 mutual reveal. Holder emails as hashes only; shares never
+// stored.
+// ---------------------------------------------------------------------------
+export const mirrorStatus = pgEnum("mirror_status", ["active", "revoked"]);
+
+export const mirrors = pgTable("mirrors", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  cid: text("cid").notNull(),
+  holderAEmailHash: bytea("holder_a_email_hash").notNull(),
+  holderBEmailHash: bytea("holder_b_email_hash").notNull(),
+  status: mirrorStatus("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// sleepers — owner-released. Sits encrypted until the owner flips status to
+// `released`; CID then becomes publicly visible via the status endpoint.
+// ---------------------------------------------------------------------------
+export const sleeperStatus = pgEnum("sleeper_status", [
+  "asleep",
+  "released",
+  "revoked",
+]);
+
+export const sleepers = pgTable("sleepers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  cid: text("cid").notNull(),
+  status: sleeperStatus("status").notNull().default("asleep"),
+  releasedAt: timestamp("released_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// pacts — N-of-N consensus. Like switches but K=N and no dead-man timer.
+// Members are emailed their shares; server holds nothing reconstructable.
+// ---------------------------------------------------------------------------
+export const pactStatus = pgEnum("pact_status", ["active", "revoked"]);
+
+export const pacts = pgTable("pacts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  cid: text("cid").notNull(),
+  partyCountN: integer("party_count_n").notNull(),
+  status: pactStatus("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const pactMembers = pgTable(
+  "pact_members",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pactId: uuid("pact_id")
+      .notNull()
+      .references(() => pacts.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    emailHash: bytea("email_hash").notNull(),
+    shareIndex: integer("share_index").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("pact_members_pact_idx").on(t.pactId)],
+);

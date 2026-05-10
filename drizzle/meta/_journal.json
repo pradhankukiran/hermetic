@@ -5,22 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1778347629009,
+      "when": 1746825660000,
       "tag": "0000_initial",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1778348849265,
+      "when": 1746829020000,
       "tag": "0001_add_trustee_email",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1778410442841,
-      "tag": "0002_add_beacon",
+      "when": 1778412016107,
+      "tag": "0002_add_seven_modes",
       "breakpoints": true
     }
   ]
