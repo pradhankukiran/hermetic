@@ -181,3 +181,53 @@ export const switchTrustees = pgTable(
 
 // Drizzle SQL helper to reference NOW() at insert/update time when needed.
 export const NOW = sql`now()`;
+
+// ---------------------------------------------------------------------------
+// echoes — Echo-mode metadata (sealed-bid auctions).
+//
+// An auction has a public `closesAt` deadline pinned to a drand round.
+// Multiple parties submit bids encrypted under that *same* round, so all
+// bids become decryptable simultaneously when the round arrives. The DB
+// holds only the auction's public metadata: it never sees bid content,
+// bid keys, or anything that would let an early peeker decrypt.
+//
+// No owner: auctions are anonymous and public — anyone with the URL can
+// view the auction, submit a bid, and reveal bids after close. (We still
+// enforce close-time on the server when accepting bid CIDs.)
+// ---------------------------------------------------------------------------
+export const echoes = pgTable("echoes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  drandRound: bigint("drand_round", { mode: "number" }).notNull(),
+  drandChainHash: text("drand_chain_hash").notNull(),
+  closesAt: timestamp("closes_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// echo_bids — one row per bid registered against an auction. The CID
+// points to a tlock-sealed bid envelope on IPFS; the bidder's name is
+// stored as plaintext so the auction page can list submissions in real
+// time (without revealing the bid amount until after close).
+//
+// Bid content, bidder identity beyond the chosen display name, and the
+// bid key are NEVER stored — only the IPFS pointer + label.
+// ---------------------------------------------------------------------------
+export const echoBids = pgTable(
+  "echo_bids",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    echoId: uuid("echo_id")
+      .notNull()
+      .references(() => echoes.id, { onDelete: "cascade" }),
+    cid: text("cid").notNull(),
+    bidderName: text("bidder_name").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("echo_bids_echo_idx").on(t.echoId)],
+);
