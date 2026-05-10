@@ -148,7 +148,7 @@ function ModeCard({ mode }: { mode: Mode }) {
 
 export default function LandingPage() {
   return (
-    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-3 lg:gap-x-16 lg:gap-y-8 lg:py-16">
+    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-3 lg:gap-x-12 lg:gap-y-8 lg:px-12 lg:py-16">
       {/* Hero — middle column on lg+, top on mobile */}
       <section className="order-1 flex flex-col items-center justify-center gap-6 text-center lg:order-2">
         <div className="flex items-center gap-3 sm:gap-4">
