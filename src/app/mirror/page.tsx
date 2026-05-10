@@ -1,7 +1,7 @@
 import { GitCompareArrows } from "lucide-react";
 
-import { ComingSoon } from "@/components/layout/coming-soon";
 import { ModeHero } from "@/components/layout/mode-hero";
+import { CreateMirrorForm } from "@/components/modes/mirror/create-mirror-form";
 
 export default function MirrorPage() {
   return (
@@ -13,7 +13,7 @@ export default function MirrorPage() {
         description="Two halves, two holders. Neither opens alone — both must combine to unlock. Built for hostage-style exchanges where neither party should reveal first."
       />
       <section className="flex flex-col">
-        <ComingSoon mode="Mirror" />
+        <CreateMirrorForm />
       </section>
     </div>
   );
