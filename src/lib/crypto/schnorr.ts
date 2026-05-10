@@ -64,20 +64,27 @@ export type SchnorrProof = {
  */
 const CURVE_ORDER: bigint = secp256k1.Point.Fn.ORDER;
 
+// BigInt constants. Constructed at module load to avoid bigint *literal*
+// syntax (which requires ES2020+ and the project's tsconfig still targets
+// ES2017 for downlevel-iterable compatibility).
+const ZERO = BigInt(0);
+const EIGHT = BigInt(8);
+const BYTE_MASK = BigInt(0xff);
+
 function bigintToBytes32(x: bigint): Uint8Array {
   const out = new Uint8Array(SCHNORR_SCALAR_BYTES);
   let v = x;
   for (let i = SCHNORR_SCALAR_BYTES - 1; i >= 0; i--) {
-    out[i] = Number(v & 0xffn);
-    v >>= 8n;
+    out[i] = Number(v & BYTE_MASK);
+    v >>= EIGHT;
   }
   return out;
 }
 
 function bytesToBigint(bytes: Uint8Array): bigint {
-  let v = 0n;
+  let v = ZERO;
   for (let i = 0; i < bytes.length; i++) {
-    v = (v << 8n) | BigInt(bytes[i]);
+    v = (v << EIGHT) | BigInt(bytes[i]);
   }
   return v;
 }
@@ -99,7 +106,7 @@ function witnessToScalar(witness: Uint8Array): bigint {
     );
     const h = sha256(tagged);
     const x = bytesToBigint(h) % CURVE_ORDER;
-    if (x !== 0n) return x;
+    if (x !== ZERO) return x;
   }
   throw new Error("witnessToScalar: exhausted retries (impossible)");
 }
@@ -155,8 +162,8 @@ export async function proveKnowledge(
   const PBytes = P.toBytes();
 
   // Sample r ∈ [1, n−1]. Reject the (vanishing-probability) zero case.
-  let r = 0n;
-  while (r === 0n) {
+  let r = ZERO;
+  while (r === ZERO) {
     const rBytes = await randomBytes(SCHNORR_SCALAR_BYTES);
     r = bytesToBigint(rBytes) % CURVE_ORDER;
   }
@@ -205,7 +212,7 @@ export function verifyKnowledge(
 
   const sScalar = bytesToBigint(proof.response) % CURVE_ORDER;
   const eClaimed = bytesToBigint(proof.challenge) % CURVE_ORDER;
-  if (sScalar === 0n) return false;
+  if (sScalar === ZERO) return false;
 
   // Re-derive the challenge — a forged proof might claim any e, so we must
   // recompute it ourselves and compare.
